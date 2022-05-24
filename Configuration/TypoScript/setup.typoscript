@@ -1,0 +1,28 @@
+config.tx_nxvarnish {
+  settings {
+    esiDebugComment = %s
+  }
+}
+
+[globalString = LIT:{$debug} = 1]
+  # The whole "wrap ESI results in HTML comments" thing is only meant for those situations
+  # where debugging is enabled, so usually for development environments. In production
+  # environments the ESI tag is just presented "as is".
+  #
+  # %1$s: The "<esi:include>" tag, which gets replaced by the nested content by Varnish.
+  # %2%s: The requested URL, so this can stay even if the nested tag is replaced.
+  # %3%s: When the "<esi:include>" has not be used as self-closing: This is the child content.
+  config.tx_nxvarnish.settings.esiDebugComment (
+<!--
+
+ESI Start: %2$s
+Debug-Content:
+%3$s
+
+-->%1$s<!--
+
+ESI End: %2$s
+
+-->
+  )
+[global]
