@@ -1,0 +1,120 @@
+name: Test TYPO3 Extension
+
+on: [ push, pull_request ]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  test:
+
+    runs-on: ubuntu-20.04
+
+    name: TYPO3 ${{ matrix.typo3}} on PHP ${{ matrix.php }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [ 7.4 ]
+        typo3: [ 9.5, 10.4 ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer
+          extensions: pdo, sqlite3
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-php${{ matrix.php }}-typo3${{ matrix.typo3 }}
+
+
+      - name: Install TYPO3 core
+        run: composer require typo3/cms-core="^${{ matrix.typo3 }}" -W
+
+      - name: Unit Tests
+        run: .Build/bin/phpunit -c phpunit.xml
+
+      - name: Functional Tests
+        run: .Build/bin/phpunit -c phpunit_functional.xml
+
+      # upload results for later use
+      - uses: actions/upload-artifact@master
+        if: github.event_name == 'pull_request'
+        with:
+          name: coverage-results
+          path: .Build/logs/coverage/
+
+
+  report:
+    # only run on pull request
+    if: github.event_name == 'pull_request'
+
+    runs-on: ubuntu-20.04
+
+    name: Create Test Result Report
+
+    needs: [ test ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          # soyhuce/phpunit-to-cobertura is not compatible with with PHP > 7.4 yet
+          php-version: 7.4
+          tools: composer
+          extensions: pdo, sqlite3
+
+      - uses: actions/download-artifact@master
+        with:
+          name: coverage-results
+          path: .Build/logs/coverage/
+
+      - name: Install Dependencies
+        run: composer install --no-interaction
+
+      # merge result files from unit tests and functional tests
+      - name: Merge Coverage Reports
+        run: .Build/bin/phpcov merge --php .Build/logs/coverage.php .Build/logs/coverage/
+
+      # convert result file to cobertura
+      - name: Generate Cobertura Report
+        run: composer require soyhuce/phpunit-to-cobertura && .Build/bin/phpunit-to-cobertura .Build/logs/coverage.php .Build/logs/cobertura.xml
+
+      # finally use the cobertura report and generate coverage summary
+      - name: Code Coverage Summary Report
+        uses: irongut/CodeCoverageSummary@v1.2.0
+        with:
+          filename: .Build/logs/cobertura.xml
+          badge: true
+          # there are not enough tests yet
+          fail_below_min: false
+          format: markdown
+          hide_branch_rate: true
+          hide_complexity: false
+          indicators: true
+          output: both
+          thresholds: '60 80'
+
+      - name: Add Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          recreate: true
+          path: code-coverage-results.md
