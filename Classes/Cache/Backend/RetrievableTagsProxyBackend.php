@@ -39,7 +39,7 @@ class RetrievableTagsProxyBackend extends AbstractBackend implements Retrievable
     public function setCache(FrontendInterface $cache)
     {
         parent::setCache($cache);
-        $this->proxyCacheIdentifier = $this->cacheIdentifier . '_nxcachetags_proxy';
+        $this->proxyCacheIdentifier = $this->cacheIdentifier . '_nxvarnish_proxy';
         $cacheManager = GeneralUtility::makeInstance(CacheManager::class);
         if (!$cacheManager->hasCache($this->proxyCacheIdentifier)) {
             $cacheManager->setCacheConfigurations($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']);

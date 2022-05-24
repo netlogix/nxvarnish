@@ -1,6 +1,7 @@
 <?php
 
 use Netlogix\Nxvarnish\Cache\Backend\RetrievableTagsProxyBackend;
+use Netlogix\Nxvarnish\Cache\Backend\Typo3DatabaseBackend;
 use Netlogix\Nxvarnish\Cache\VarnishBackend;
 use Netlogix\Nxvarnish\Hooks\TypoScriptFrontendController;
 use TYPO3\CMS\Core\Cache\Frontend\VariableFrontend;
@@ -24,6 +25,13 @@ call_user_func(function () {
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['cache_pages'] = [
         'frontend' => VariableFrontend::class,
         'backend' => RetrievableTagsProxyBackend::class,
+        'options' => [],
+        'groups' => ['pages', 'all']
+    ];
+
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['cache_pages_nxvarnish_proxy'] = [
+        'frontend' => VariableFrontend::class,
+        'backend' => Typo3DatabaseBackend::class,
         'options' => [],
         'groups' => ['pages', 'all']
     ];
