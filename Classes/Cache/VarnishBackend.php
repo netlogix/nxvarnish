@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxvarnish\Cache;
 
-use Netlogix\Nxvarnish\Service\CurlVarnishService;
+use Netlogix\Nxvarnish\Service\VarnishService;
 use TYPO3\CMS\Core\Cache\Backend\TaggableBackendInterface;
 use TYPO3\CMS\Core\Cache\Exception;
 use TYPO3\CMS\Core\Cache\Exception\InvalidDataException;
@@ -16,11 +16,6 @@ class VarnishBackend implements TaggableBackendInterface
 
     protected $extensionConfiguration = [];
 
-    /**
-     * Create an instance of the CURLHTTP cachemanager. IT takes one parameter, the HTTP address
-     * (including http://) that the Varnish server is running on. If this parameter is specified
-     * This one is used, otherwise, the host of the URL that needs to cleared is used.
-     */
     public function __construct()
     {
         $this->extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('nxvarnish');
@@ -97,9 +92,9 @@ class VarnishBackend implements TaggableBackendInterface
         $tag = $this->modifyTag($tag);
 
         if (!empty($this->extensionConfiguration['varnishHost'])) {
-            $curlService = GeneralUtility::makeInstance(CurlVarnishService::class);
-            assert($curlService instanceof CurlVarnishService);
-            $curlService->banTag($tag);
+            $varnishService = GeneralUtility::makeInstance(VarnishService::class);
+            assert($varnishService instanceof VarnishService);
+            $varnishService->banTag($tag);
         }
     }
 
