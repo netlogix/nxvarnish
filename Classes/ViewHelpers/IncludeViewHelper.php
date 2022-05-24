@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxvarnish\ViewHelpers;
 
-use Psr\Log\LoggerInterface;
-use TYPO3\CMS\Core\Log\LogManagerInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
@@ -13,12 +13,9 @@ use TYPO3\CMS\Fluid\ViewHelpers\Link\PageViewHelper;
 /**
  * Wrap esi:include and provide some debug information
  */
-class IncludeViewHelper extends PageViewHelper
+class IncludeViewHelper extends PageViewHelper implements LoggerAwareInterface
 {
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
+    use LoggerAwareTrait;
 
     protected $tagName = 'esi:include';
 
@@ -37,11 +34,6 @@ class IncludeViewHelper extends PageViewHelper
         );
         $extensionConfiguration = (array)$settings['config.']['tx_nxvarnish.']['settings.'];
         $this->esiDebugCommentTemplate = $extensionConfiguration['esiDebugComment'];
-    }
-
-    public function injectLogManager(LogManagerInterface $logManager)
-    {
-        $this->logger = $logManager->getLogger(__CLASS__);
     }
 
     public function render(): string
