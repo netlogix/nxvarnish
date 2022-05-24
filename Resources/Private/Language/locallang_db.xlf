@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file source-language="en" datatype="plaintext" original="messages" date="2014-02-15T14:00:00Z"
+	product-name="nxvarnish">
+		<header />
+		<body>
+			<trans-unit id="pages.tx_nxvarnish_no_ext_cache">
+				<source xml:lang="en">No external caching</source>
+			</trans-unit>
+			<trans-unit id="pages.tx_nxvarnish_no_ext_cache_formlabel">
+				<source xml:lang="en">External caching</source>
+			</trans-unit>
+			<trans-unit id="pages.tx_nxvarnish_no_ext_cache_1_formlabel">
+				<source xml:lang="en">Disable</source>
+			</trans-unit>
+
+			<trans-unit id="esi_page_type">
+				<source xml:lang="en">ESI Include</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>
