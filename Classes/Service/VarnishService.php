@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxvarnish\Service;
 
+use GuzzleHttp\Exception\GuzzleException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
@@ -34,10 +35,12 @@ class VarnishService implements LoggerAwareInterface, SingletonInterface
                 ->request($this->varnishHost, 'BAN', ['headers' => ['X-Cache-Tags' => $tag]]);
 
             if ($response->getStatusCode() !== 200) {
-                $this->logger->error('unexpected status after purging Varnish cache', ['tag' => $tag, 'status' => $response->getStatusCode()]);
+                $this->logger->error(
+                    'unexpected status after purging Varnish cache',
+                    ['tag' => $tag, 'status' => $response->getStatusCode()]
+                );
             }
-
-        } catch (\Exception $e) {
+        } catch (GuzzleException $e) {
             $this->logger->error('failed purging Varnish cache', ['exception' => $e, 'tag' => $tag]);
         }
     }
