@@ -91,11 +91,15 @@ class VarnishBackend implements TaggableBackendInterface
     {
         $tag = $this->modifyTag($tag);
 
-        if (!empty($this->extensionConfiguration['varnishHost'])) {
-            $varnishService = GeneralUtility::makeInstance(VarnishService::class);
-            assert($varnishService instanceof VarnishService);
-            $varnishService->banTag($tag);
-        }
+        $this->getVarnishService()->banTag($tag);
+    }
+
+    protected function getVarnishService(): VarnishService
+    {
+        $varnishService = GeneralUtility::makeInstance(VarnishService::class);
+        assert($varnishService instanceof VarnishService);
+
+        return $varnishService;
     }
 
     /**
