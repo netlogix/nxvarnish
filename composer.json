@@ -2,8 +2,9 @@
 	"name": "netlogix/nxvarnish",
 	"type": "typo3-cms-extension",
 	"description": "Adds varnish integration to TYPO3",
+	"license": "MIT",
 	"require": {
-		"php": "^7.2",
+		"php": "^7.4",
 		"typo3/cms-core": "^9.5 || ^10.4",
 		"typo3/cms-frontend": "^9.5 || ^10.4",
 		"typo3/cms-extbase": "^9.5 || ^10.4",
@@ -14,9 +15,6 @@
 		"nimut/testing-framework": "^6.0",
 		"nimut/phpunit-merger": "^1.1",
 		"phpunit/phpcov": "^8.2"
-	},
-	"replace": {
-		"netlogix/nxvarnish": "self.version"
 	},
 	"extra": {
 		"typo3/cms": {
