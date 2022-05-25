@@ -1,5 +1,6 @@
 # TYPO3 extension nxvarnish
 
+[![stability-beta](https://img.shields.io/badge/stability-beta-33bbff.svg)](https://github.com/netlogix/nxvarnish)
 [![TYPO3 V9](https://img.shields.io/badge/TYPO3-9-orange.svg)](https://get.typo3.org/version/9)
 [![TYPO3 V10](https://img.shields.io/badge/TYPO3-10-orange.svg)](https://get.typo3.org/version/10)
 [![TYPO3 V11](https://img.shields.io/badge/TYPO3-11-orange.svg)](https://get.typo3.org/version/11)
@@ -8,6 +9,8 @@
 
 Adds varnish integration to TYPO3. Ensures varnish caches are flushed when TYPO3
 caches are flushed. Uses cache tags to flush all necessary content.
+
+**This is a beta release that has not yet been tested in production.**
 
 ## Compatibility
 
