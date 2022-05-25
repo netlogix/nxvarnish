@@ -2,15 +2,10 @@
 
 namespace Netlogix\Nxvarnish\Middleware;
 
-use Netlogix\Nxvarnish\Cache\Backend\RetrievableTagsBackendInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use TYPO3\CMS\Core\Cache\CacheManager;
-use TYPO3\CMS\Core\Http\NullResponse;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 class CacheTagMiddleware implements MiddlewareInterface
@@ -21,45 +16,36 @@ class CacheTagMiddleware implements MiddlewareInterface
         $response = $handler->handle($request);
 
         $controller = $this->getTypoScriptFrontendController();
-        if (
-            !($response instanceof NullResponse)
-            && $controller instanceof TypoScriptFrontendController
-            && $controller->isOutputting()) {
-            if (
-                $request->getAttribute('normalizedParams')->isBehindReverseProxy()
-                || $request->hasHeader('X-Esi')
-            ) {
-                $response = $response->withHeader('X-Cache-Tags', ';' . implode(';', $this->getPageCacheTags()) . ';');
-            }
+
+        if ($controller === null) {
+            return $response;
         }
+
+        if (
+            $request->getAttribute('normalizedParams')->isBehindReverseProxy()
+            || $request->hasHeader('X-Esi')
+        ) {
+            $response = $response->withHeader(
+                'X-Cache-Tags',
+                ';' . implode(';', $this->getPageCacheTags($controller)) . ';'
+            );
+        }
+
         return $response;
     }
 
-    protected function getTypoScriptFrontendController(): TypoScriptFrontendController
+    protected function getTypoScriptFrontendController(): ?TypoScriptFrontendController
     {
         return $GLOBALS['TSFE'];
     }
 
-    protected function getPageCacheTags()
+    protected function getPageCacheTags(TypoScriptFrontendController $tsfe)
     {
-        $controller = $this->getTypoScriptFrontendController();
-        if ($controller->isGeneratePage()) {
-            $pageCacheTags = $this->getTypoScriptFrontendController()->getPageCacheTags();
-        } else {
-            $pageCacheBackend = GeneralUtility::makeInstance(ObjectManager::class)
-                ->get(CacheManager::class)
-                ->getCache('cache_pages')
-                ->getBackend();
-
-            assert($pageCacheBackend instanceof RetrievableTagsBackendInterface);
-            $pageCacheTags = $pageCacheBackend->getTags($controller->newHash);
-        }
+        $pageCacheTags = $tsfe->getPageCacheTags();
 
         $pageCacheTags = array_unique($pageCacheTags);
         $pageCacheTags = $this->simplifyCacheTags($pageCacheTags);
-        $pageCacheTags = $this->compressCacheTags($pageCacheTags);
-
-        return $pageCacheTags;
+        return $this->compressCacheTags($pageCacheTags);
     }
 
     /**
