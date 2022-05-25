@@ -1,42 +1,25 @@
 <?php
 
-namespace Netlogix\Nxvarnish\Middleware;
+declare(strict_types=1);
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
-use Psr\Http\Server\RequestHandlerInterface;
+namespace Netlogix\Nxvarnish\Hooks;
+
+use TYPO3\CMS\Core\Http\ServerRequestFactory;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
-class CacheTagMiddleware implements MiddlewareInterface
-{
+class ContentPostProcHook {
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
-    {
-        $response = $handler->handle($request);
-
-        $controller = $this->getTypoScriptFrontendController();
-
-        if ($controller === null) {
-            return $response;
-        }
+    public function cached(array $params, TypoScriptFrontendController &$tsfe) {
+        $request = $GLOBALS['TYPO3_REQUEST'] ?? ServerRequestFactory::fromGlobals();
 
         if (
             $request->getAttribute('normalizedParams')->isBehindReverseProxy()
             || $request->hasHeader('X-Esi')
         ) {
-            $response = $response->withHeader(
-                'X-Cache-Tags',
-                ';' . implode(';', $this->getPageCacheTags($controller)) . ';'
-            );
+            // add headers to typoScript config. this means that headers will be cached together with page content.
+            // if the page is fetched from cache then the headers will be fetched as well and sent again.
+            $tsfe->config['config']['additionalHeaders.'][] = [ 'header' => 'X-Cache-Tags: ' . ';' . implode(';', $this->getPageCacheTags($tsfe)) . ';'];
         }
-
-        return $response;
-    }
-
-    protected function getTypoScriptFrontendController(): ?TypoScriptFrontendController
-    {
-        return $GLOBALS['TSFE'];
     }
 
     protected function getPageCacheTags(TypoScriptFrontendController $tsfe)
@@ -100,5 +83,4 @@ class CacheTagMiddleware implements MiddlewareInterface
 
         return $cacheTags;
     }
-
 }
