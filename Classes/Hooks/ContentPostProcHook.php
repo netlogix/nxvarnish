@@ -7,9 +7,11 @@ namespace Netlogix\Nxvarnish\Hooks;
 use TYPO3\CMS\Core\Http\ServerRequestFactory;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
-class ContentPostProcHook {
+class ContentPostProcHook
+{
 
-    public function cached(array $params, TypoScriptFrontendController &$tsfe) {
+    public function cached(array $params, TypoScriptFrontendController &$tsfe)
+    {
         $request = $GLOBALS['TYPO3_REQUEST'] ?? ServerRequestFactory::fromGlobals();
 
         if (
@@ -18,7 +20,12 @@ class ContentPostProcHook {
         ) {
             // add headers to typoScript config. this means that headers will be cached together with page content.
             // if the page is fetched from cache then the headers will be fetched as well and sent again.
-            $tsfe->config['config']['additionalHeaders.'][] = [ 'header' => 'X-Cache-Tags: ' . ';' . implode(';', $this->getPageCacheTags($tsfe)) . ';'];
+            $tsfe->config['config']['additionalHeaders.'][] = [
+                'header' => 'X-Cache-Tags: ' . ';' . implode(
+                        ';',
+                        $this->getPageCacheTags($tsfe)
+                    ) . ';'
+            ];
         }
     }
 

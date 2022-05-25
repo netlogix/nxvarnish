@@ -25,17 +25,6 @@ class VarnishBackend extends NullBackend
         $this->getVarnishService()->banTag($tag);
     }
 
-    protected function getVarnishService(): VarnishService
-    {
-        static $varnishService = null;
-
-        if ($varnishService == null) {
-            $varnishService = GeneralUtility::makeInstance(VarnishService::class);
-        }
-
-        return $varnishService;
-    }
-
     /**
      * Modify tag to be a regular expression for varnish. This converts a tag for a record (table_uid) to a regex
      * compatible to compressed tag output of EXT:nxcachetags
@@ -54,6 +43,17 @@ class VarnishBackend extends NullBackend
         }
 
         return ';' . $tag . ';';
+    }
+
+    protected function getVarnishService(): VarnishService
+    {
+        static $varnishService = null;
+
+        if ($varnishService == null) {
+            $varnishService = GeneralUtility::makeInstance(VarnishService::class);
+        }
+
+        return $varnishService;
     }
 
     /**
