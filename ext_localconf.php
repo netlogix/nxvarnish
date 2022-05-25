@@ -1,6 +1,6 @@
 <?php
 
-use Netlogix\Nxvarnish\Hooks\TypoScriptFrontendController;
+use Netlogix\Nxvarnish\Xclass\Controller\TypoScriptFrontendController;
 use TYPO3\CMS\Core\Cache\Frontend\VariableFrontend;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
