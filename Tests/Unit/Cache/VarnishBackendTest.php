@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxvarnish\Tests\Unit\Cache;
 
-use Netlogix\Nxvarnish\Cache\VarnishBackend;
+use Netlogix\Nxvarnish\Cache\Backend\VarnishBackend;
 use Netlogix\Nxvarnish\Service\VarnishService;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 
@@ -36,11 +36,11 @@ class VarnishBackendTest extends UnitTestCase
      * @test
      * @return void
      */
-    public function itReturnsNullForIdentifier()
+    public function itReturnsFalseForIdentifier()
     {
         $res = $this->subject->get(uniqid());
 
-        self::assertNull($res);
+        self::assertFalse($res);
     }
 
     /**
@@ -68,7 +68,7 @@ class VarnishBackendTest extends UnitTestCase
         $this->subject->set($id, $data, $tags);
 
         // an error would throw an exception
-        self::assertNull($this->subject->get($id));
+        self::assertFalse($this->subject->get($id));
         self::assertFalse($this->subject->has($id));
         self::assertEmpty($this->subject->findIdentifiersByTag($tags[0]));
     }
