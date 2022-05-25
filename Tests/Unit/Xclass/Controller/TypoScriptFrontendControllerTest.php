@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Netlogix\Nxvarnish\Tests\Unit\Hooks;
+namespace Netlogix\Nxvarnish\Tests\Unit\Xclass\Controller;
 
-use Netlogix\Nxvarnish\Hooks\TypoScriptFrontendController;
+use Netlogix\Nxvarnish\Xclass\Controller\TypoScriptFrontendController;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 
 class TypoScriptFrontendControllerTest extends UnitTestCase

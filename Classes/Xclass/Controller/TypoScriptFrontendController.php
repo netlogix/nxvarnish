@@ -1,6 +1,6 @@
 <?php
 
-namespace Netlogix\Nxvarnish\Hooks;
+namespace Netlogix\Nxvarnish\Xclass\Controller;
 
 class TypoScriptFrontendController extends \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
 {
