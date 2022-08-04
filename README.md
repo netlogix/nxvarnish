@@ -10,8 +10,6 @@
 Adds varnish integration to TYPO3. Ensures varnish caches are flushed when TYPO3
 caches are flushed. Uses cache tags to flush all necessary content.
 
-**This is a beta release that has not yet been tested in production.**
-
 ## Compatibility
 
 The current version (4.x) of this extension has been tested using these
