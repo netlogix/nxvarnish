@@ -32,6 +32,7 @@ class ContentPostProcHook
     protected function getPageCacheTags(TypoScriptFrontendController $tsfe)
     {
         $pageCacheTags = $tsfe->getPageCacheTags();
+        $pageCacheTags[] = 'pageId_' . $tsfe->id;
 
         $pageCacheTags = array_unique($pageCacheTags);
         $pageCacheTags = $this->simplifyCacheTags($pageCacheTags);
