@@ -9,6 +9,12 @@
 		"typo3/cms-extbase": "^9.5 || ^10.4",
 		"typo3/cms-fluid": "^9.5 || ^10.4"
 	},
+	"require-dev": {
+		"ext-sqlite3": "*",
+		"nimut/testing-framework": "^6.0",
+		"nimut/phpunit-merger": "^1.1",
+		"phpunit/phpcov": "^8.2"
+	},
 	"extra": {
 		"typo3/cms": {
 			"extension-key": "nxvarnish",
@@ -28,5 +34,19 @@
 		"psr-4": {
 			"Netlogix\\Nxvarnish\\": "Classes/"
 		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Netlogix\\Nxvarnish\\Tests\\": "Tests/"
+		}
+	},
+	"scripts": {
+		"post-autoload-dump": [
+			"@prepare-extension-test-structure",
+			"mkdir --parents .Build/logs/"
+		],
+		"prepare-extension-test-structure": [
+			"Nimut\\TestingFramework\\Composer\\ExtensionTestEnvironment::prepare"
+		]
 	}
 }
