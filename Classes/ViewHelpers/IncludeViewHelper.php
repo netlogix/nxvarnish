@@ -33,8 +33,11 @@ class IncludeViewHelper extends PageViewHelper implements LoggerAwareInterface
         $settings = $configurationManager->getConfiguration(
             ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
         );
-        $extensionConfiguration = (array)$settings['config.']['tx_nxvarnish.']['settings.'];
-        $this->esiDebugCommentTemplate = $extensionConfiguration['esiDebugComment'];
+
+        if (array_key_exists('tx_nxvarnish.', (array)$settings['config.']) && array_key_exists('settings.', (array)$settings['config.']['tx_nxvarnish.'])) {
+            $extensionConfiguration = (array)$settings['config.']['tx_nxvarnish.']['settings.'];
+            $this->esiDebugCommentTemplate = $extensionConfiguration['esiDebugComment'];
+        }
     }
 
     public function render(): string
