@@ -8,8 +8,6 @@ use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController as T3TypoScriptFrontendController;
 
-defined('TYPO3_MODE') or die();
-
 call_user_func(function () {
     // a dummy cache that is used to promote cache clearing actions to varnish.
     // this is used instead of a clearCachePostProc hook to get notified of Install Tool `Flush Cache` action as well
