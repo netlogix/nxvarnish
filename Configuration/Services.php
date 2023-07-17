@@ -12,4 +12,10 @@ return function (ContainerConfigurator $containerConfigurator) {
 
     $services->load('Netlogix\\Nxvarnish\\', '../Classes/');
 
+    $services->set(\Netlogix\Nxvarnish\Event\ExposeCacheTags::class)->tag(
+        'event.listener',
+        [
+            'identifier' => 'nxvarnish/exposecachetags-listener',
+        ]
+    );
 };
