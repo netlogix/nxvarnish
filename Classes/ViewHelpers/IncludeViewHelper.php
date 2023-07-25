@@ -69,7 +69,9 @@ class IncludeViewHelper extends AbstractTagBasedViewHelper implements LoggerAwar
         $renderingContext = $this->renderingContext;
         $request = $renderingContext->getRequest();
 
-        if ($request instanceof ExtbaseRequestInterface) {
+        if ($this->arguments['src'] !== null && $this->arguments['src'] !== '') {
+            $src = $this->arguments['src'];
+        } else if ($request instanceof ExtbaseRequestInterface) {
             $src = $this->renderWithExtbaseContext($request);
         } else if ($request instanceof ServerRequestInterface && ApplicationType::fromRequest($request)->isFrontend()) {
             // Use the regular typolink functionality.
