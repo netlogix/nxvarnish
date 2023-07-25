@@ -4,7 +4,7 @@
 	"description": "Adds varnish integration to TYPO3",
 	"license": "MIT",
 	"require": {
-		"php": "^7.4 || ^8.0 || ^8.1",
+		"php": "^8.1",
 		"typo3/cms-core": "^11.5 || ^12.4",
 		"typo3/cms-frontend": "^11.5 || ^12.4",
 		"typo3/cms-extbase": "^11.5 || ^12.4",
@@ -12,9 +12,8 @@
 	},
 	"require-dev": {
 		"ext-sqlite3": "*",
-		"nimut/testing-framework": "^6.0",
-		"nimut/phpunit-merger": "^1.1",
-		"phpunit/phpcov": "^8.2"
+		"typo3/testing-framework": "^8.0",
+		"phpunit/phpcov": "^9.0"
 	},
 	"extra": {
 		"typo3/cms": {
@@ -42,12 +41,14 @@
 		}
 	},
 	"scripts": {
+		"test-unit": "phpunit -c phpunit.xml",
+		"test-functional": "phpunit -c phpunit_functional.xml",
 		"post-autoload-dump": [
 			"@prepare-extension-test-structure",
-			"mkdir --parents .Build/logs/"
+			"mkdir -p .Build/logs/"
 		],
 		"prepare-extension-test-structure": [
-			"Nimut\\TestingFramework\\Composer\\ExtensionTestEnvironment::prepare"
+			"TYPO3\\TestingFramework\\Composer\\ExtensionTestEnvironment::prepare"
 		]
 	}
 }

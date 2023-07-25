@@ -8,14 +8,15 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Netlogix\Nxvarnish\Service\VarnishService;
-use Nimut\TestingFramework\TestCase\FunctionalTestCase;
+use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 use Psr\Http\Message\RequestInterface;
+use PHPUnit\Framework\Attributes\Test;
 
 class VarnishServiceTest extends FunctionalTestCase
 {
-    protected $testExtensionsToLoad = ['typo3conf/ext/nxvarnish'];
+    protected array $testExtensionsToLoad = ['typo3conf/ext/nxvarnish'];
 
-    protected $configurationToUseInTestInstance = [
+    protected array $configurationToUseInTestInstance = [
         'EXTENSIONS' => [
             'nxvarnish' => [
                 'varnishHost' => 'http://varnish.example.com:8080',
@@ -23,11 +24,8 @@ class VarnishServiceTest extends FunctionalTestCase
         ]
     ];
 
-    /**
-     * @test
-     * @return void
-     */
-    public function banTagCreatesRequestUsingBanMethod()
+    #[Test]
+    public function banTagCreatesRequestUsingBanMethod(): void
     {
         $tag = uniqid();
 
@@ -51,11 +49,8 @@ class VarnishServiceTest extends FunctionalTestCase
         self::assertTrue(true);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function banTagCreatesRequestIncludingVarnishHeader()
+    #[Test]
+    public function banTagCreatesRequestIncludingVarnishHeader(): void
     {
         $tag = uniqid();
 

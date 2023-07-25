@@ -6,9 +6,8 @@ namespace Netlogix\Nxvarnish\Tests\Unit\Cache;
 
 use Netlogix\Nxvarnish\Cache\Backend\VarnishBackend;
 use Netlogix\Nxvarnish\Service\VarnishService;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
-
-use function PHPUnit\Framework\at;
+use PHPUnit\Framework\Attributes\Test;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 class VarnishBackendTest extends UnitTestCase
 {
@@ -32,22 +31,16 @@ class VarnishBackendTest extends UnitTestCase
         $this->subject->expects(self::any())->method('getVarnishService')->willReturn($varnishService);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itReturnsFalseForIdentifier()
+    #[Test]
+    public function itReturnsFalseForIdentifier(): void
     {
         $res = $this->subject->get(uniqid());
 
         self::assertFalse($res);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itCanSetData()
+    #[Test]
+    public function itCanSetData(): void
     {
         $this->subject->set(uniqid(), uniqid());
 
@@ -55,11 +48,8 @@ class VarnishBackendTest extends UnitTestCase
         self::assertTrue(true);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itDoesNotStoreAnyData()
+    #[Test]
+    public function itDoesNotStoreAnyData(): void
     {
         $id = uniqid();
         $data = uniqid();
@@ -73,20 +63,14 @@ class VarnishBackendTest extends UnitTestCase
         self::assertEmpty($this->subject->findIdentifiersByTag($tags[0]));
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itReportsMissingEntryWhenRemoving()
+    #[Test]
+    public function itReportsMissingEntryWhenRemoving(): void
     {
         self::assertFalse($this->subject->remove(uniqid()));
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function flushTriggersCompleteBan()
+    #[Test]
+    public function flushTriggersCompleteBan(): void
     {
         $varnishService = $this->getMockBuilder(VarnishService::class)
             ->disableOriginalConstructor()
@@ -101,11 +85,8 @@ class VarnishBackendTest extends UnitTestCase
         $subject->flush();
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function flushByTagTriggersBanOfTag()
+    #[Test]
+    public function flushByTagTriggersBanOfTag(): void
     {
         $tag = uniqid();
 
@@ -121,11 +102,8 @@ class VarnishBackendTest extends UnitTestCase
         $subject->flushByTag($tag);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function flushByTagsTriggersMultipleBanOfTag()
+    #[Test]
+    public function flushByTagsTriggersMultipleBanOfTag(): void
     {
         $tag1 = uniqid();
         $tag2 = uniqid();
@@ -133,8 +111,11 @@ class VarnishBackendTest extends UnitTestCase
         $varnishService = $this->getMockBuilder(VarnishService::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $varnishService->expects(at(0))->method('banTag')->with(';' . $tag1 . ';');
-        $varnishService->expects(at(1))->method('banTag')->with(';' . $tag2 . ';');
+        $varnishService->expects($this->exactly(2))->method('banTag')
+            ->with(...$this->consecutiveParams(
+                [';' . $tag1 . ';'],
+                [';' . $tag2 . ';']
+            ));
 
         $subject = $this->getMockBuilder(VarnishBackend::class)->disableOriginalConstructor()->onlyMethods(
             ['getVarnishService']
@@ -144,11 +125,8 @@ class VarnishBackendTest extends UnitTestCase
     }
 
 
-    /**
-     * @test
-     * @return void
-     */
-    public function tagsIncludingTableNamesAreCompressed()
+    #[Test]
+    public function tagsIncludingTableNamesAreCompressed(): void
     {
         $table = uniqid();
         $id = rand(1, 9999);
@@ -166,4 +144,50 @@ class VarnishBackendTest extends UnitTestCase
         $subject->expects(self::any())->method('getVarnishService')->willReturn($varnishService);
         $subject->flushByTag(sprintf('%s_%d', $table, $id));
     }
+
+
+
+
+    // @see: https://gist.github.com/ziadoz/370fe63e24f31fd1eb989e7477b9a472
+    public function consecutiveParams(array ...$args): array
+    {
+        $callbacks = [];
+        $count = count(max($args));
+
+        for ($index = 0; $index < $count; $index++) {
+            $returns = [];
+
+            foreach ($args as $arg) {
+                if (! array_is_list($arg)) {
+                    throw new \InvalidArgumentException('Every array must be a list');
+                }
+
+                if (! isset($arg[$index])) {
+                    throw new \InvalidArgumentException(sprintf('Every array must contain %d parameters', $count));
+                }
+
+                $returns[] = $arg[$index];
+            }
+
+            $callbacks[] = $this->callback(new class ($returns) {
+                public function __construct(protected array $returns)
+                {
+                }
+
+                public function __invoke(mixed $actual): bool
+                {
+                    if (count($this->returns) === 0) {
+                        return true;
+                    }
+
+                    return $actual === array_shift($this->returns);
+                }
+            });
+        }
+
+        return $callbacks;
+    }
+
+
+
 }
