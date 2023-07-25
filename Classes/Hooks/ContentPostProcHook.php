@@ -12,10 +12,9 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 class ContentPostProcHook
 {
 
-    public function cached(array $params, TypoScriptFrontendController &$tsfe)
+    public function cached(array $params, TypoScriptFrontendController &$tsfe): void
     {
         $request = $GLOBALS['TYPO3_REQUEST'] ?? ServerRequestFactory::fromGlobals();
-
         if (
             $request->getAttribute('normalizedParams')->isBehindReverseProxy()
             || $request->hasHeader('X-Esi')
