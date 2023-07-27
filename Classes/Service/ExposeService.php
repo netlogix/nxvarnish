@@ -1,39 +1,17 @@
 <?php
 
-declare(strict_types=1);
+namespace Netlogix\Nxvarnish\Service;
 
-namespace Netlogix\Nxvarnish\Hooks;
-
-use TYPO3\CMS\Core\Http\ServerRequestFactory;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
-class ContentPostProcHook
+final class ExposeService
 {
 
-    public function cached(array $params, TypoScriptFrontendController &$tsfe)
+    public function getPageCacheTags(TypoScriptFrontendController $typoScriptFrontendController): array
     {
-        $request = $GLOBALS['TYPO3_REQUEST'] ?? ServerRequestFactory::fromGlobals();
-
-        if (
-            $request->getAttribute('normalizedParams')->isBehindReverseProxy()
-            || $request->hasHeader('X-Esi')
-        ) {
-            // add headers to typoScript config. this means that headers will be cached together with page content.
-            // if the page is fetched from cache then the headers will be fetched as well and sent again.
-            $tsfe->config['config']['additionalHeaders.'][] = [
-                'header' => 'X-Cache-Tags: ' . ';' . implode(
-                        ';',
-                        $this->getPageCacheTags($tsfe)
-                    ) . ';'
-            ];
-        }
-    }
-
-    protected function getPageCacheTags(TypoScriptFrontendController $tsfe)
-    {
-        $pageCacheTags = $tsfe->getPageCacheTags();
-        $pageCacheTags[] = 'pageId_' . $tsfe->id;
-
+        $pageCacheTags = $typoScriptFrontendController->getPageCacheTags();
+        // TODO: Check if we need really need this cache tag
+        $pageCacheTags[] = 'pageId_' . $typoScriptFrontendController->id;
         $pageCacheTags = array_unique($pageCacheTags);
         $pageCacheTags = $this->simplifyCacheTags($pageCacheTags);
         return $this->compressCacheTags($pageCacheTags);
@@ -51,7 +29,9 @@ class ContentPostProcHook
                 $tableCacheTags[] = $cacheTag;
             }
         }
-
+        if (empty($tableCacheTags)) {
+            return $cacheTags;
+        }
         $recordCacheTagPattern = '/^(?:' . implode('|', array_map('preg_quote', $tableCacheTags, ['/'])) . ')_\d+$/';
 
         foreach ($cacheTags as $key => $cacheTag) {
@@ -69,7 +49,7 @@ class ContentPostProcHook
      *
      * table{,uid1,uid2,}
      */
-    protected function compressCacheTags(array $cacheTags)
+    protected function compressCacheTags(array $cacheTags): array
     {
         $tagsToCompress = [];
 
@@ -89,6 +69,8 @@ class ContentPostProcHook
             $cacheTags[] = $table . '{,' . implode(',', $uids) . ',}';
         }
 
+        sort($cacheTags);
         return $cacheTags;
     }
+
 }

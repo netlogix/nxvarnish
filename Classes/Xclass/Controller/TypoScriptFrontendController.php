@@ -10,7 +10,7 @@ class TypoScriptFrontendController extends \TYPO3\CMS\Frontend\Controller\TypoSc
      *
      * @return bool
      */
-    function isStaticCacheble()
+    function isStaticCacheble(): bool
     {
         $doCache = !$this->no_cache && !$this->isINTincScript() && $this->isExternalCachable();
 
@@ -22,9 +22,9 @@ class TypoScriptFrontendController extends \TYPO3\CMS\Frontend\Controller\TypoSc
      *
      * @return bool
      */
-    protected function isExternalCachable()
+    protected function isExternalCachable(): bool
     {
-        return !$this->page['tx_nxvarnish_no_ext_cache'];
+        return !($this->page['tx_nxvarnish_no_ext_cache'] ?? false);
     }
 
 }

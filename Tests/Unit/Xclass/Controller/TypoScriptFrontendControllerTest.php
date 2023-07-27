@@ -5,16 +5,14 @@ declare(strict_types=1);
 namespace Netlogix\Nxvarnish\Tests\Unit\Xclass\Controller;
 
 use Netlogix\Nxvarnish\Xclass\Controller\TypoScriptFrontendController;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\Attributes\Test;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 class TypoScriptFrontendControllerTest extends UnitTestCase
 {
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itAllowsCachingIfNotDisabledInPage()
+    #[Test]
+    public function itAllowsCachingIfNotDisabledInPage(): void
     {
         $subject = $this->getMockBuilder(TypoScriptFrontendController::class)
             ->disableOriginalConstructor()
@@ -26,11 +24,8 @@ class TypoScriptFrontendControllerTest extends UnitTestCase
         self::assertTrue($subject->isStaticCacheble());
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itPreventsCachingIfDisabledInPage()
+    #[Test]
+    public function itPreventsCachingIfDisabledInPage(): void
     {
         $subject = $this->getMockBuilder(TypoScriptFrontendController::class)
             ->disableOriginalConstructor()
