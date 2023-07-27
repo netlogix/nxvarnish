@@ -1,10 +1,8 @@
 # TYPO3 extension nxvarnish
 
-[![stability-beta](https://img.shields.io/badge/stability-beta-33bbff.svg)](https://github.com/netlogix/nxvarnish)
-[![TYPO3 V9](https://img.shields.io/badge/TYPO3-9-orange.svg)](https://get.typo3.org/version/9)
-[![TYPO3 V10](https://img.shields.io/badge/TYPO3-10-orange.svg)](https://get.typo3.org/version/10)
-[![TYPO3 V11](https://img.shields.io/badge/TYPO3-11-orange.svg)](https://get.typo3.org/version/11)
-[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.4-8892BF.svg)](https://php.net/)
+[![stability-stable](https://img.shields.io/badge/stability-stable-33bbff.svg)](https://github.com/netlogix/nxvarnish)
+[![TYPO3 V12](https://img.shields.io/badge/TYPO3-12-orange.svg)](https://get.typo3.org/version/12)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%208.1-8892BF.svg)](https://php.net/)
 [![GitHub CI status](https://github.com/netlogix/nxvarnish/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/netlogix/nxvarnish/actions)
 
 Adds varnish integration to TYPO3. Ensures varnish caches are flushed when TYPO3
@@ -12,14 +10,11 @@ caches are flushed. Uses cache tags to flush all necessary content.
 
 ## Compatibility
 
-The current version (4.x) of this extension has been tested using these
+The current version (5.x) of this extension has been tested using these
 versions:
 
-* TYPO3 9.5 on PHP 7.4
-* TYPO3 10.4 on PHP 7.4
-* TYPO3 11.5 on PHP 7.4
-* TYPO3 11.5 on PHP 8.0
-* TYPO3 11.5 on PHP 8.1
+* TYPO3 12.4 on PHP 8.1
+* TYPO3 12.4 on PHP 8.2
 
 ## Installation
 

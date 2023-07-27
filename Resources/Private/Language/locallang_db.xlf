@@ -13,10 +13,6 @@
 			<trans-unit id="pages.tx_nxvarnish_no_ext_cache_1_formlabel">
 				<source xml:lang="en">Disable</source>
 			</trans-unit>
-
-			<trans-unit id="esi_page_type">
-				<source xml:lang="en">ESI Include</source>
-			</trans-unit>
 		</body>
 	</file>
 </xliff>

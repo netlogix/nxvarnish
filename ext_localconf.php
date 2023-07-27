@@ -22,6 +22,4 @@ call_user_func(function () {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][T3TypoScriptFrontendController::class]['className'] = TypoScriptFrontendController::class;
     }
 
-    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['contentPostProc-cached'][] =
-        ContentPostProcHook::class . '->cached';
 });

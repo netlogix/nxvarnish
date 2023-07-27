@@ -7,12 +7,12 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 final class ExposeService
 {
 
-    public function getPageCacheTags(TypoScriptFrontendController $typoScriptFrontendController)
+    public function getPageCacheTags(TypoScriptFrontendController $typoScriptFrontendController): array
     {
         $pageCacheTags = $typoScriptFrontendController->getPageCacheTags();
+        $pageCacheTags[] = 'pageId_' . $typoScriptFrontendController->id;
         $pageCacheTags = array_unique($pageCacheTags);
         $pageCacheTags = $this->simplifyCacheTags($pageCacheTags);
-        $pageCacheTags[] = 'pageId_' . $typoScriptFrontendController->id;
         return $this->compressCacheTags($pageCacheTags);
     }
 
@@ -48,7 +48,7 @@ final class ExposeService
      *
      * table{,uid1,uid2,}
      */
-    protected function compressCacheTags(array $cacheTags)
+    protected function compressCacheTags(array $cacheTags): array
     {
         $tagsToCompress = [];
 
@@ -68,6 +68,7 @@ final class ExposeService
             $cacheTags[] = $table . '{,' . implode(',', $uids) . ',}';
         }
 
+        sort($cacheTags);
         return $cacheTags;
     }
 

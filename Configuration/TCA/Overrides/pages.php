@@ -1,8 +1,6 @@
 <?php
 
-use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use TYPO3\CMS\Core\Utility\PathUtility;
 
 call_user_func(function ($extensionKey, $table) {
     $tempColumns = [
@@ -11,11 +9,11 @@ call_user_func(function ($extensionKey, $table) {
             'label' => 'LLL:EXT:nxvarnish/Resources/Private/Language/locallang_db.xlf:pages.tx_nxvarnish_no_ext_cache',
             'config' => [
                 'type' => 'check',
+                'renderType' => 'checkboxLabeledToggle',
+                'default' => 0,
                 'items' => [
-                    '1' => [
-                        '0' => 'LLL:EXT:nxvarnish/Resources/Private/Language/locallang_db.xlf:pages.tx_nxvarnish_no_ext_cache_1_formlabel',
-                    ],
-                ],
+                    ['label' => 'LLL:EXT:nxvarnish/Resources/Private/Language/locallang_db.xlf:pages.tx_nxvarnish_no_ext_cache_1_formlabel'],
+                ]
             ],
         ],
     ];
