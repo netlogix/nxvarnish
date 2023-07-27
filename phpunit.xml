@@ -35,7 +35,6 @@
         <junit outputFile=".Build/logs/junit/unit.xml"/>
     </logging>
 
-
     <php>
         <ini name="date.timezone" value="Europe/Berlin"/>
         <ini name="display_errors" value="1"/>

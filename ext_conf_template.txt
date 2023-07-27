@@ -3,4 +3,3 @@ allowCacheLogin = 0
 
 # cat=curl/; type=string; label=Varnish host: Example: "http://varnish-proxy.hostname:8080"
 varnishHost =
-

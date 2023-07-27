@@ -9,7 +9,6 @@ final class ExposeService
 
     public function getPageCacheTags(TypoScriptFrontendController $typoScriptFrontendController)
     {
-
         $pageCacheTags = $typoScriptFrontendController->getPageCacheTags();
         $pageCacheTags = array_unique($pageCacheTags);
         $pageCacheTags = $this->simplifyCacheTags($pageCacheTags);
@@ -29,7 +28,7 @@ final class ExposeService
                 $tableCacheTags[] = $cacheTag;
             }
         }
-        if(empty($tableCacheTags)) {
+        if (empty($tableCacheTags)) {
             return $cacheTags;
         }
         $recordCacheTagPattern = '/^(?:' . implode('|', array_map('preg_quote', $tableCacheTags, ['/'])) . ')_\d+$/';

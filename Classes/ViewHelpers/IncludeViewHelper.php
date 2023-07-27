@@ -7,6 +7,7 @@ namespace Netlogix\Nxvarnish\ViewHelpers;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use RuntimeException;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\HttpUtility;
@@ -57,8 +58,9 @@ class IncludeViewHelper extends AbstractTagBasedViewHelper implements LoggerAwar
             ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
         );
 
-        if (array_key_exists('tx_nxvarnish.', (array)$settings['config.']) && array_key_exists('settings.', (array)$settings['config.']['tx_nxvarnish.'])) {
-            $extensionConfiguration = (array)$settings['config.']['tx_nxvarnish.']['settings.'];
+        if (array_key_exists('tx_nxvarnish.', (array) $settings['config.'])
+            && array_key_exists('settings.', (array) $settings['config.']['tx_nxvarnish.'])) {
+            $extensionConfiguration = (array) $settings['config.']['tx_nxvarnish.']['settings.'];
             $this->esiDebugCommentTemplate = $extensionConfiguration['esiDebugComment'];
         }
     }
@@ -71,13 +73,13 @@ class IncludeViewHelper extends AbstractTagBasedViewHelper implements LoggerAwar
 
         if ($this->arguments['src'] !== null && $this->arguments['src'] !== '') {
             $src = $this->arguments['src'];
-        } else if ($request instanceof ExtbaseRequestInterface) {
+        } elseif ($request instanceof ExtbaseRequestInterface) {
             $src = $this->renderWithExtbaseContext($request);
-        } else if ($request instanceof ServerRequestInterface && ApplicationType::fromRequest($request)->isFrontend()) {
+        } elseif ($request instanceof ServerRequestInterface && ApplicationType::fromRequest($request)->isFrontend()) {
             // Use the regular typolink functionality.
             $src = $this->renderFrontendLinkWithCoreContext($request);
         } else {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'The rendering context of ViewHelper esi:include is missing a valid request object.',
                 1639819269
             );
@@ -103,16 +105,16 @@ class IncludeViewHelper extends AbstractTagBasedViewHelper implements LoggerAwar
 
     protected function renderWithExtbaseContext(ExtbaseRequestInterface $request): string
     {
-        $pageUid = isset($this->arguments['pageUid']) ? (int)$this->arguments['pageUid'] : null;
-        $pageType = isset($this->arguments['pageType']) ? (int)$this->arguments['pageType'] : 0;
-        $noCache = isset($this->arguments['noCache']) && (bool)$this->arguments['noCache'];
-        $section = isset($this->arguments['section']) ? (string)$this->arguments['section'] : '';
+        $pageUid = isset($this->arguments['pageUid']) ? (int) $this->arguments['pageUid'] : null;
+        $pageType = isset($this->arguments['pageType']) ? (int) $this->arguments['pageType'] : 0;
+        $noCache = isset($this->arguments['noCache']) && (bool) $this->arguments['noCache'];
+        $section = isset($this->arguments['section']) ? (string) $this->arguments['section'] : '';
         $language = $this->arguments['language'] ?? null;
-        $linkAccessRestrictedPages = isset($this->arguments['linkAccessRestrictedPages']) && (bool)$this->arguments['linkAccessRestrictedPages'];
-        $additionalParams = isset($this->arguments['additionalParams']) ? (array)$this->arguments['additionalParams'] : [];
-        $absolute = isset($this->arguments['absolute']) && (bool)$this->arguments['absolute'];
+        $linkAccessRestrictedPages = isset($this->arguments['linkAccessRestrictedPages']) && (bool) $this->arguments['linkAccessRestrictedPages'];
+        $additionalParams = isset($this->arguments['additionalParams']) ? (array) $this->arguments['additionalParams'] : [];
+        $absolute = isset($this->arguments['absolute']) && (bool) $this->arguments['absolute'];
         $addQueryString = $this->arguments['addQueryString'] ?? false;
-        $argumentsToBeExcludedFromQueryString = isset($this->arguments['argumentsToBeExcludedFromQueryString']) ? (array)$this->arguments['argumentsToBeExcludedFromQueryString'] : [];
+        $argumentsToBeExcludedFromQueryString = isset($this->arguments['argumentsToBeExcludedFromQueryString']) ? (array) $this->arguments['argumentsToBeExcludedFromQueryString'] : [];
 
         $uriBuilder = GeneralUtility::makeInstance(ExtbaseUriBuilder::class);
         $uriBuilder->reset()
@@ -128,7 +130,7 @@ class IncludeViewHelper extends AbstractTagBasedViewHelper implements LoggerAwar
             ->setArgumentsToBeExcludedFromQueryString($argumentsToBeExcludedFromQueryString);
 
         if (MathUtility::canBeInterpretedAsInteger($pageUid)) {
-            $uriBuilder->setTargetPageUid((int)$pageUid);
+            $uriBuilder->setTargetPageUid((int) $pageUid);
         }
 
         return $uriBuilder->build();
@@ -136,16 +138,16 @@ class IncludeViewHelper extends AbstractTagBasedViewHelper implements LoggerAwar
 
     protected function renderFrontendLinkWithCoreContext(ServerRequestInterface $request): string
     {
-        $pageUid = isset($this->arguments['pageUid']) ? (int)$this->arguments['pageUid'] : 'current';
-        $pageType = isset($this->arguments['pageType']) ? (int)$this->arguments['pageType'] : 0;
-        $noCache = isset($this->arguments['noCache']) && (bool)$this->arguments['noCache'];
-        $section = isset($this->arguments['section']) ? (string)$this->arguments['section'] : '';
+        $pageUid = isset($this->arguments['pageUid']) ? (int) $this->arguments['pageUid'] : 'current';
+        $pageType = isset($this->arguments['pageType']) ? (int) $this->arguments['pageType'] : 0;
+        $noCache = isset($this->arguments['noCache']) && (bool) $this->arguments['noCache'];
+        $section = isset($this->arguments['section']) ? (string) $this->arguments['section'] : '';
         $language = $this->arguments['language'] ?? null;
-        $linkAccessRestrictedPages = isset($this->arguments['linkAccessRestrictedPages']) && (bool)$this->arguments['linkAccessRestrictedPages'];
-        $additionalParams = isset($this->arguments['additionalParams']) ? (array)$this->arguments['additionalParams'] : [];
-        $absolute = isset($this->arguments['absolute']) && (bool)$this->arguments['absolute'];
+        $linkAccessRestrictedPages = isset($this->arguments['linkAccessRestrictedPages']) && (bool) $this->arguments['linkAccessRestrictedPages'];
+        $additionalParams = isset($this->arguments['additionalParams']) ? (array) $this->arguments['additionalParams'] : [];
+        $absolute = isset($this->arguments['absolute']) && (bool) $this->arguments['absolute'];
         $addQueryString = $this->arguments['addQueryString'] ?? false;
-        $argumentsToBeExcludedFromQueryString = isset($this->arguments['argumentsToBeExcludedFromQueryString']) ? (array)$this->arguments['argumentsToBeExcludedFromQueryString'] : [];
+        $argumentsToBeExcludedFromQueryString = isset($this->arguments['argumentsToBeExcludedFromQueryString']) ? (array) $this->arguments['argumentsToBeExcludedFromQueryString'] : [];
 
         $typolinkConfiguration = [
             'parameter' => $pageUid,
@@ -174,7 +176,10 @@ class IncludeViewHelper extends AbstractTagBasedViewHelper implements LoggerAwar
         if ($addQueryString && $addQueryString !== 'false') {
             $typolinkConfiguration['addQueryString'] = $addQueryString;
             if ($argumentsToBeExcludedFromQueryString !== []) {
-                $typolinkConfiguration['addQueryString.']['exclude'] = implode(',', $argumentsToBeExcludedFromQueryString);
+                $typolinkConfiguration['addQueryString.']['exclude'] = implode(
+                    ',',
+                    $argumentsToBeExcludedFromQueryString
+                );
             }
         }
 
@@ -182,7 +187,7 @@ class IncludeViewHelper extends AbstractTagBasedViewHelper implements LoggerAwar
             $cObj = GeneralUtility::makeInstance(ContentObjectRenderer::class);
             $cObj->setRequest($request);
             $linkFactory = GeneralUtility::makeInstance(LinkFactory::class);
-            $linkResult = $linkFactory->create((string)$this->renderChildren(), $typolinkConfiguration, $cObj);
+            $linkResult = $linkFactory->create((string) $this->renderChildren(), $typolinkConfiguration, $cObj);
             return $linkResult->getUrl();
         } catch (UnableToLinkException $e) {
             $result = '';
