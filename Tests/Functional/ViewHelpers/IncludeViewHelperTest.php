@@ -67,7 +67,7 @@ class IncludeViewHelperTest extends FunctionalTestCase
                 sprintf('<nx:include src="https://www.example.com%s"/>', $uniquePath),
                 false,
                 false,
-                sprintf('<esi:include src="http://www.example.com%s"></esi:include>', $uniquePath),
+                sprintf('<esi:include src="https://www.example.com%s"></esi:include>', $uniquePath),
             ],
             'renderEsiIncludeTagWithDebugTemplate' => [
                 sprintf('<nx:include src="http://www.example.com%s"/>', $uniquePath),
