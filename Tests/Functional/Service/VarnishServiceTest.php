@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxvarnish\Tests\Functional\Service;
 
+use GuzzleHttp\Exception\BadResponseException;
+use GuzzleHttp\Exception\InvalidArgumentException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Netlogix\Nxvarnish\Service\VarnishService;
+use Psr\Log\LoggerInterface;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 use Psr\Http\Message\RequestInterface;
 use PHPUnit\Framework\Attributes\Test;
@@ -76,6 +79,37 @@ class VarnishServiceTest extends FunctionalTestCase
         $subject->banTag($tag);
 
         self::assertTrue(true);
+    }
+
+    #[Test]
+    public function guzzleErrorsAreCachedAndLogged(): void
+    {
+        $tag = uniqid();
+
+        $mock = new MockHandler([
+            function (RequestInterface $request, array $options) use ($tag) {
+                if ($request->getMethod() != 'BAN') {
+                    self::fail('Expected Request to use method "BAN"');
+                }
+
+                throw new InvalidArgumentException('Test');
+            }
+        ]);
+        $stack = HandlerStack::create($mock);
+
+        $GLOBALS['TYPO3_CONF_VARS']['HTTP']['handler'] = $stack;
+
+        $subject = new VarnishService();
+
+        $loggerMock = $this->getMockBuilder(LoggerInterface::class)->getMock();
+        $loggerMock->expects(self::once())->method('error');
+
+        $subject->setLogger($loggerMock);
+        $subject->banTag($tag);
+    }
+
+    private function getLoggerMock()
+    {
     }
 
 }

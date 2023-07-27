@@ -7,7 +7,7 @@ namespace Netlogix\Nxvarnish\Tests\Functional\ViewHelpers;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\DependencyInjection\Container;
+use RuntimeException;
 use TYPO3\CMS\Core\Configuration\SiteConfiguration;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
@@ -39,7 +39,7 @@ class IncludeViewHelperTest extends FunctionalTestCase
     protected array $debugTypoScriptSettings = [
         'tx_nxvarnish.' => [
             'settings.' => [
-                'esiDebugComment' => '<!-- DEBUG %2$s -->%1$s'
+                'esiDebugComment' => '<!-- DEBUG-TEXT %3$s DEBUG-URL %2$s -->%1$s'
             ]
         ]
     ];
@@ -73,7 +73,21 @@ class IncludeViewHelperTest extends FunctionalTestCase
                 sprintf('<nx:include src="http://www.example.com%s"/>', $uniquePath),
                 false,
                 true,
-                sprintf('<!-- DEBUG http://www.example.com%s --><esi:include src="http://www.example.com%s"></esi:include>', $uniquePath, $uniquePath),
+                sprintf(
+                    '<!-- DEBUG-TEXT None given DEBUG-URL http://www.example.com%s --><esi:include src="http://www.example.com%s"></esi:include>',
+                    $uniquePath,
+                    $uniquePath
+                ),
+            ],
+            'renderEsiIncludeTagWithDebugTemplateAndCustomText' => [
+                sprintf('<nx:include src="http://www.example.com%s">CustomDebugText</nx:include>', $uniquePath),
+                false,
+                true,
+                sprintf(
+                    '<!-- DEBUG-TEXT CustomDebugText DEBUG-URL http://www.example.com%s --><esi:include src="http://www.example.com%s"></esi:include>',
+                    $uniquePath,
+                    $uniquePath
+                ),
             ],
         ];
     }
@@ -98,26 +112,33 @@ class IncludeViewHelperTest extends FunctionalTestCase
                 '<nx:include pageUid="2" pageType="1689932803"/>',
                 false,
                 true,
-                '<!-- DEBUG /dummy-1-2?type=1689932803 --><esi:include src="/dummy-1-2?type=1689932803"></esi:include>',
+                '<!-- DEBUG-TEXT None given DEBUG-URL /dummy-1-2?type=1689932803 --><esi:include src="/dummy-1-2?type=1689932803"></esi:include>',
             ],
         ];
     }
 
     #[DataProvider('srcAttributeDataProvider')]
     #[Test]
-    public function renderWithSrcAttribute(string $template, bool $isBehindReverseProxy, bool $useDebugTemplate, string $expected): void
-    {
+    public function renderWithSrcAttribute(
+        string $template,
+        bool $isBehindReverseProxy,
+        bool $useDebugTemplate,
+        string $expected
+    ): void {
         $request = new ServerRequest('http://localhost/typo3/', null, 'php://input', [],
             $isBehindReverseProxy ? ['REMOTE_ADDR' => '192.0.2.1'] : []
         );
         $request = $request->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_FE);
-        $request = $request->withAttribute('normalizedParams', NormalizedParams::createFromRequest(
-            $request,
-            array_merge(
-                $GLOBALS['TYPO3_CONF_VARS']['SYS'],
-                $isBehindReverseProxy ? ['reverseProxyIP' => '192.0.2.1'] : []
+        $request = $request->withAttribute(
+            'normalizedParams',
+            NormalizedParams::createFromRequest(
+                $request,
+                array_merge(
+                    $GLOBALS['TYPO3_CONF_VARS']['SYS'],
+                    $isBehindReverseProxy ? ['reverseProxyIP' => '192.0.2.1'] : []
+                )
             )
-        ));
+        );
 
         $frontendTypoScript = new FrontendTypoScript(new RootNode(), []);
         $frontendTypoScript->setSetupArray(['config.' => $useDebugTemplate ? $this->debugTypoScriptSettings : []]);
@@ -136,8 +157,12 @@ class IncludeViewHelperTest extends FunctionalTestCase
 
     #[DataProvider('pageUidAndPageTypeDataProvider')]
     #[Test]
-    public function renderInFrontendWithCoreContext(string $template, bool $isBehindReverseProxy, bool $useDebugTemplate, string $expected): void
-    {
+    public function renderInFrontendWithCoreContext(
+        string $template,
+        bool $isBehindReverseProxy,
+        bool $useDebugTemplate,
+        string $expected
+    ): void {
         $this->importCSVDataSet(__DIR__ . '/../../Fixtures/pages.csv');
         $this->writeSiteConfiguration(
             'test',
@@ -149,13 +174,16 @@ class IncludeViewHelperTest extends FunctionalTestCase
         );
         $request = $request->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_FE);
         $request = $request->withAttribute('routing', new PageArguments(1, '0', ['untrusted' => 123]));
-        $request = $request->withAttribute('normalizedParams', NormalizedParams::createFromRequest(
-            $request,
-            array_merge(
-                $GLOBALS['TYPO3_CONF_VARS']['SYS'],
-                $isBehindReverseProxy ? ['reverseProxyIP' => '192.0.2.1'] : []
+        $request = $request->withAttribute(
+            'normalizedParams',
+            NormalizedParams::createFromRequest(
+                $request,
+                array_merge(
+                    $GLOBALS['TYPO3_CONF_VARS']['SYS'],
+                    $isBehindReverseProxy ? ['reverseProxyIP' => '192.0.2.1'] : []
+                )
             )
-        ));
+        );
 
         $frontendTypoScript = new FrontendTypoScript(new RootNode(), []);
         $frontendTypoScript->setSetupArray(['config.' => $useDebugTemplate ? $this->debugTypoScriptSettings : []]);
@@ -176,13 +204,102 @@ class IncludeViewHelperTest extends FunctionalTestCase
         self::assertSame($expected, $result);
     }
 
-    function writeSiteConfiguration(
-        string $identifier,
-        array  $site = [],
-        array  $languages = [],
-        array  $errorHandling = []
-    ): void
+    #[DataProvider('pageUidAndPageTypeDataProvider')]
+    #[Test]
+    public function renderInFrontendWithExtbaseContext(
+        string $template,
+        bool $isBehindReverseProxy,
+        bool $useDebugTemplate,
+        string $expected
+    ): void {
+        $this->importCSVDataSet(__DIR__ . '/../../Fixtures/pages.csv');
+
+        $this->writeSiteConfiguration(
+            'test',
+            $this->buildSiteConfiguration(1, '/'),
+        );
+
+        $request = new ServerRequest(
+            'http://localhost/typo3/',
+            null,
+            'php://input',
+            [],
+            $isBehindReverseProxy ? ['REMOTE_ADDR' => '192.0.2.1'] : []
+        );
+        $request = $request->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_FE);
+        $request = $request->withAttribute('routing', new PageArguments(1, '0', ['untrusted' => 123]));
+        $request = $request->withAttribute('extbase', new ExtbaseRequestParameters());
+        $request = $request->withAttribute('currentContentObject', $this->get(ContentObjectRenderer::class));
+        $request = $request->withAttribute(
+            'normalizedParams',
+            NormalizedParams::createFromRequest(
+                $request,
+                array_merge(
+                    $GLOBALS['TYPO3_CONF_VARS']['SYS'],
+                    $isBehindReverseProxy ? ['reverseProxyIP' => '192.0.2.1'] : []
+                )
+            )
+        );
+
+        $frontendTypoScript = new FrontendTypoScript(new RootNode(), []);
+        $frontendTypoScript->setSetupArray(['config.' => $useDebugTemplate ? $this->debugTypoScriptSettings : []]);
+        $request = $request->withAttribute('frontend.typoscript', $frontendTypoScript);
+
+        $GLOBALS['TYPO3_REQUEST'] = $request;
+
+        $request = new Request($request);
+        $GLOBALS['TYPO3_REQUEST'] = $request;
+        $GLOBALS['TSFE'] = $this->createMock(TypoScriptFrontendController::class);
+        $GLOBALS['TSFE']->id = 1;
+        $GLOBALS['TSFE']->sys_page = GeneralUtility::makeInstance(PageRepository::class);
+
+        $view = new StandaloneView();
+        $view->setRequest($request);
+        $view->setTemplateSource('{namespace nx=Netlogix\Nxvarnish\ViewHelpers}' . $template);
+
+        $result = $view->render();
+        self::assertSame($expected, $result);
+    }
+
+    #[Test]
+    public function throwRuntimeExceptionWhenNotInFrontend(): void
     {
+        $this->expectException(RuntimeException::class);
+
+        $this->importCSVDataSet(__DIR__ . '/../../Fixtures/pages.csv');
+        $this->writeSiteConfiguration(
+            'test',
+            $this->buildSiteConfiguration(1, '/'),
+        );
+
+        $request = new ServerRequest('http://localhost/typo3/', null, 'php://input', [],
+            []
+        );
+        $request = $request->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_BE);
+        $request = $request->withAttribute('routing', new PageArguments(1, '0', ['untrusted' => 123]));
+
+        $frontendTypoScript = new FrontendTypoScript(new RootNode(), []);
+        $frontendTypoScript->setSetupArray(['config.' => []]);
+        $request = $request->withAttribute('frontend.typoscript', $frontendTypoScript);
+
+        $GLOBALS['TYPO3_REQUEST'] = $request;
+
+        $GLOBALS['TSFE'] = $this->createMock(TypoScriptFrontendController::class);
+        $GLOBALS['TSFE']->id = 1;
+        $GLOBALS['TSFE']->sys_page = GeneralUtility::makeInstance(PageRepository::class);
+
+        $view = new StandaloneView();
+        $view->setRequest($request);
+        $view->setTemplateSource('{namespace nx=Netlogix\Nxvarnish\ViewHelpers} <nx:include />');
+        $view->render();
+    }
+
+    private function writeSiteConfiguration(
+        string $identifier,
+        array $site = [],
+        array $languages = [],
+        array $errorHandling = []
+    ): void {
         $configuration = $site;
         if (!empty($languages)) {
             $configuration['languages'] = $languages;
@@ -205,65 +322,14 @@ class IncludeViewHelperTest extends FunctionalTestCase
         }
     }
 
-    function buildSiteConfiguration(
-        int    $rootPageId,
+    private function buildSiteConfiguration(
+        int $rootPageId,
         string $base = ''
-    ): array
-    {
+    ): array {
         return [
             'rootPageId' => $rootPageId,
             'base' => $base,
         ];
-    }
-
-    #[DataProvider('pageUidAndPageTypeDataProvider')]
-    #[Test]
-    public function renderInFrontendWithExtbaseContext(string $template, bool $isBehindReverseProxy, bool $useDebugTemplate, string $expected): void
-    {
-        $this->importCSVDataSet(__DIR__ . '/../../Fixtures/pages.csv');
-
-        $this->writeSiteConfiguration(
-            'test',
-            $this->buildSiteConfiguration(1, '/'),
-        );
-
-        $request = new ServerRequest(
-            'http://localhost/typo3/',
-            null,
-            'php://input',
-            [],
-            $isBehindReverseProxy ? ['REMOTE_ADDR' => '192.0.2.1'] : []
-        );
-        $request = $request->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_FE);
-        $request = $request->withAttribute('routing', new PageArguments(1, '0', ['untrusted' => 123]));
-        $request = $request->withAttribute('extbase', new ExtbaseRequestParameters());
-        $request = $request->withAttribute('currentContentObject', $this->get(ContentObjectRenderer::class));
-        $request = $request->withAttribute('normalizedParams', NormalizedParams::createFromRequest(
-            $request,
-            array_merge(
-                $GLOBALS['TYPO3_CONF_VARS']['SYS'],
-                $isBehindReverseProxy ? ['reverseProxyIP' => '192.0.2.1'] : []
-            )
-        ));
-
-        $frontendTypoScript = new FrontendTypoScript(new RootNode(), []);
-        $frontendTypoScript->setSetupArray(['config.' => $useDebugTemplate ? $this->debugTypoScriptSettings : []]);
-        $request = $request->withAttribute('frontend.typoscript', $frontendTypoScript);
-
-        $GLOBALS['TYPO3_REQUEST'] = $request;
-
-        $request = new Request($request);
-        $GLOBALS['TYPO3_REQUEST'] = $request;
-        $GLOBALS['TSFE'] = $this->createMock(TypoScriptFrontendController::class);
-        $GLOBALS['TSFE']->id = 1;
-        $GLOBALS['TSFE']->sys_page = GeneralUtility::makeInstance(PageRepository::class);
-
-        $view = new StandaloneView();
-        $view->setRequest($request);
-        $view->setTemplateSource('{namespace nx=Netlogix\Nxvarnish\ViewHelpers}' . $template);
-
-        $result = $view->render();
-        self::assertSame($expected, $result);
     }
 
 }

@@ -18,7 +18,29 @@ class VarnishBackend extends NullBackend
         $this->flushVarnishByTag('.*');
     }
 
-    protected function flushVarnishByTag(string $tag): void
+    /**
+     * Removes all cache entries of this cache which are tagged by the specified tag.
+     *
+     * @param string $tag The tag the entries must have
+     */
+    public function flushByTag($tag): void
+    {
+        $this->flushVarnishByTag((string) $tag);
+    }
+
+    /**
+     * Removes all cache entries of this cache which are tagged by any of the specified tags.
+     *
+     * @param string[] $tags List of tags
+     */
+    public function flushByTags(array $tags): void
+    {
+        foreach ($tags as $tag) {
+            $this->flushVarnishByTag((string) $tag);
+        }
+    }
+
+    private function flushVarnishByTag(string $tag): void
     {
         $tag = $this->modifyTag($tag);
 
@@ -29,7 +51,7 @@ class VarnishBackend extends NullBackend
      * Modify tag to be a regular expression for varnish. This converts a tag for a record (table_uid) to a regex
      * compatible to compressed tag output of EXT:nxcachetags
      */
-    protected function modifyTag(string $tag): string
+    private function modifyTag(string $tag): string
     {
         if ($tag === '.*') {
             return $tag;
@@ -45,36 +67,8 @@ class VarnishBackend extends NullBackend
         return ';' . $tag . ';';
     }
 
-    protected function getVarnishService(): VarnishService
+    private function getVarnishService(): VarnishService
     {
-        static $varnishService = null;
-
-        if ($varnishService == null) {
-            $varnishService = GeneralUtility::makeInstance(VarnishService::class);
-        }
-
-        return $varnishService;
-    }
-
-    /**
-     * Removes all cache entries of this cache which are tagged by the specified tag.
-     *
-     * @param string $tag The tag the entries must have
-     */
-    public function flushByTag($tag): void
-    {
-        $this->flushVarnishByTag($tag);
-    }
-
-    /**
-     * Removes all cache entries of this cache which are tagged by any of the specified tags.
-     *
-     * @param string[] $tags List of tags
-     */
-    public function flushByTags(array $tags): void
-    {
-        foreach ($tags as $tag) {
-            $this->flushVarnishByTag($tag);
-        }
+        return GeneralUtility::makeInstance(VarnishService::class);
     }
 }

@@ -10,6 +10,7 @@ final class ExposeService
     public function getPageCacheTags(TypoScriptFrontendController $typoScriptFrontendController): array
     {
         $pageCacheTags = $typoScriptFrontendController->getPageCacheTags();
+        // TODO: Check if we need really need this cache tag
         $pageCacheTags[] = 'pageId_' . $typoScriptFrontendController->id;
         $pageCacheTags = array_unique($pageCacheTags);
         $pageCacheTags = $this->simplifyCacheTags($pageCacheTags);

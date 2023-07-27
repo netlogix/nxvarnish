@@ -7,28 +7,20 @@ namespace Netlogix\Nxvarnish\Tests\Unit\Cache;
 use Netlogix\Nxvarnish\Cache\Backend\VarnishBackend;
 use Netlogix\Nxvarnish\Service\VarnishService;
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 class VarnishBackendTest extends UnitTestCase
 {
 
-    /**
-     * @var VarnishBackend
-     */
-    protected $subject;
+    protected VarnishBackend $subject;
+
+    protected bool $resetSingletonInstances = true;
 
     public function setUp(): void
     {
         parent::setUp();
-
-        $this->subject = $this->getMockBuilder(VarnishBackend::class)->disableOriginalConstructor()->onlyMethods(
-            ['getVarnishService']
-        )->getMock();
-
-        // mock this the hard way until dependency injection can be used
-        $varnishService = $this->createStub(VarnishService::class);
-
-        $this->subject->expects(self::any())->method('getVarnishService')->willReturn($varnishService);
+        $this->subject = new VarnishBackend('test');
     }
 
     #[Test]
@@ -72,34 +64,18 @@ class VarnishBackendTest extends UnitTestCase
     #[Test]
     public function flushTriggersCompleteBan(): void
     {
-        $varnishService = $this->getMockBuilder(VarnishService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $varnishService->expects(self::once())->method('banTag')->with('.*');
-
-        $subject = $this->getMockBuilder(VarnishBackend::class)->disableOriginalConstructor()->onlyMethods(
-            ['getVarnishService']
-        )->getMock();
-
-        $subject->expects(self::any())->method('getVarnishService')->willReturn($varnishService);
-        $subject->flush();
+        $varnishServiceMock = $this->getVarnishServiceMock();
+        $varnishServiceMock->expects(self::once())->method('banTag')->with('.*');
+        $this->subject->flush();
     }
 
     #[Test]
     public function flushByTagTriggersBanOfTag(): void
     {
         $tag = uniqid();
-
-        $varnishService = $this->getMockBuilder(VarnishService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $varnishService->expects(self::once())->method('banTag')->with(';' . $tag . ';');
-
-        $subject = $this->getMockBuilder(VarnishBackend::class)->disableOriginalConstructor()->onlyMethods(
-            ['getVarnishService']
-        )->getMock();
-        $subject->expects(self::any())->method('getVarnishService')->willReturn($varnishService);
-        $subject->flushByTag($tag);
+        $varnishServiceMock = $this->getVarnishServiceMock();
+        $varnishServiceMock->expects(self::once())->method('banTag')->with(';' . $tag . ';');
+        $this->subject->flushByTag($tag);
     }
 
     #[Test]
@@ -107,21 +83,13 @@ class VarnishBackendTest extends UnitTestCase
     {
         $tag1 = uniqid();
         $tag2 = uniqid();
-
-        $varnishService = $this->getMockBuilder(VarnishService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $varnishService->expects($this->exactly(2))->method('banTag')
+        $varnishServiceMock = $this->getVarnishServiceMock();
+        $varnishServiceMock->expects($this->exactly(2))->method('banTag')
             ->with(...$this->consecutiveParams(
                 [';' . $tag1 . ';'],
                 [';' . $tag2 . ';']
             ));
-
-        $subject = $this->getMockBuilder(VarnishBackend::class)->disableOriginalConstructor()->onlyMethods(
-            ['getVarnishService']
-        )->getMock();
-        $subject->expects(self::any())->method('getVarnishService')->willReturn($varnishService);
-        $subject->flushByTags([$tag1, $tag2]);
+        $this->subject->flushByTags([$tag1, $tag2]);
     }
 
 
@@ -131,22 +99,22 @@ class VarnishBackendTest extends UnitTestCase
         $table = uniqid();
         $id = rand(1, 9999);
 
-        $varnishService = $this->getMockBuilder(VarnishService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $varnishService->expects(self::once())->method('banTag')->with(
+        $varnishServiceMock = $this->getVarnishServiceMock();
+        $varnishServiceMock->expects(self::once())->method('banTag')->with(
             sprintf(';%s{[0-9,]*,%d,[0-9,]*};', $table, $id)
         );
-
-        $subject = $this->getMockBuilder(VarnishBackend::class)->disableOriginalConstructor()->onlyMethods(
-            ['getVarnishService']
-        )->getMock();
-        $subject->expects(self::any())->method('getVarnishService')->willReturn($varnishService);
-        $subject->flushByTag(sprintf('%s_%d', $table, $id));
+        $this->subject->flushByTag(sprintf('%s_%d', $table, $id));
     }
 
-
-
+    private function getVarnishServiceMock(): VarnishService
+    {
+        // mock this the hard way until dependency injection can be used
+        $varnishServiceMock = $this->getMockBuilder(VarnishService::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        GeneralUtility::setSingletonInstance(VarnishService::class, $varnishServiceMock);
+        return $varnishServiceMock;
+    }
 
     // @see: https://gist.github.com/ziadoz/370fe63e24f31fd1eb989e7477b9a472
     public function consecutiveParams(array ...$args): array
@@ -187,7 +155,5 @@ class VarnishBackendTest extends UnitTestCase
 
         return $callbacks;
     }
-
-
 
 }
