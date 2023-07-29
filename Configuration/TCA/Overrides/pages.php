@@ -9,10 +9,14 @@ call_user_func(function ($extensionKey, $table) {
             'label' => 'LLL:EXT:nxvarnish/Resources/Private/Language/locallang_db.xlf:pages.tx_nxvarnish_no_ext_cache',
             'config' => [
                 'type' => 'check',
-                'renderType' => 'checkboxLabeledToggle',
+                'renderType' => 'checkboxToggle',
                 'default' => 0,
                 'items' => [
-                    ['label' => 'LLL:EXT:nxvarnish/Resources/Private/Language/locallang_db.xlf:pages.tx_nxvarnish_no_ext_cache_1_formlabel'],
+                    [
+                        'label' => 'LLL:EXT:nxvarnish/Resources/Private/Language/locallang_db.xlf:pages.tx_nxvarnish_no_ext_cache_1_formlabel',
+                        'labelChecked' => 'Enabled',
+                        'labelUnchecked' => 'Disabled',
+                    ],
                 ]
             ],
         ],
