@@ -4,7 +4,7 @@ config.tx_nxvarnish {
   }
 }
 
-[globalString = LIT:{$debug} = 1]
+[applicationContext matches "/^Development/"]
   # The whole "wrap ESI results in HTML comments" thing is only meant for those situations
   # where debugging is enabled, so usually for development environments. In production
   # environments the ESI tag is just presented "as is".
@@ -25,4 +25,4 @@ ESI End: %2$s
 
 -->
   )
-[global]
+[END]
