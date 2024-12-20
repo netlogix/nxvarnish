@@ -13,8 +13,8 @@ caches are flushed. Uses cache tags to flush all necessary content.
 The current version (6.x) of this extension has been tested using these
 versions:
 
-* TYPO3 13.4 on PHP 8.3
-* TYPO3 13.4 on PHP 8.4
+- TYPO3 13.4 on PHP 8.3
+- TYPO3 13.4 on PHP 8.4
 
 ## Installation
 
@@ -30,10 +30,10 @@ composer require netlogix/nxvarnish
 
 This extension provides some configuration in Install Tool.
 
-* varnishHost: **required**, needed to communicate with Varnish in order to
+- varnishHost: **required**, needed to communicate with Varnish in order to
   purge
   caches
-* allowCacheLogin: *optional*, send normal cache headers even when someone is
+- allowCacheLogin: _optional_, send normal cache headers even when someone is
   logged in
 
 ### Varnish

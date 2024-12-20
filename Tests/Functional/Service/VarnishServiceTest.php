@@ -33,7 +33,7 @@ class VarnishServiceTest extends FunctionalTestCase
                 }
 
                 return new Response();
-            }
+            },
         ]);
         $stack = HandlerStack::create($mock);
 
@@ -65,7 +65,7 @@ class VarnishServiceTest extends FunctionalTestCase
                 }
 
                 return new Response();
-            }
+            },
         ]);
         $stack = HandlerStack::create($mock);
 
@@ -93,7 +93,7 @@ class VarnishServiceTest extends FunctionalTestCase
                 }
 
                 throw new InvalidArgumentException('Test');
-            }
+            },
         ]);
         $stack = HandlerStack::create($mock);
 
@@ -102,11 +102,7 @@ class VarnishServiceTest extends FunctionalTestCase
         $loggerMock = $this->getLogger();
         $loggerMock->expects($this->once())->method('error');
 
-        $subject = new VarnishService(
-            $this->getRequestFactory(),
-            $loggerMock,
-            'http://varnish.example.com:8080'
-        );
+        $subject = new VarnishService($this->getRequestFactory(), $loggerMock, 'http://varnish.example.com:8080');
         $subject->banTag($tag);
     }
 
@@ -119,5 +115,4 @@ class VarnishServiceTest extends FunctionalTestCase
     {
         return GeneralUtility::makeInstance(RequestFactory::class);
     }
-
 }

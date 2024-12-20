@@ -13,7 +13,6 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 class VarnishBackendTest extends UnitTestCase
 {
-
     protected VarnishBackend $subject;
 
     protected bool $resetSingletonInstances = true;
@@ -75,7 +74,10 @@ class VarnishBackendTest extends UnitTestCase
     {
         $tag = uniqid();
         $varnishServiceMock = $this->getVarnishServiceMock();
-        $varnishServiceMock->expects($this->once())->method('banTag')->with(';' . $tag . ';');
+        $varnishServiceMock
+            ->expects($this->once())
+            ->method('banTag')
+            ->with(';' . $tag . ';');
         $this->subject->flushByTag($tag);
     }
 
@@ -85,14 +87,12 @@ class VarnishBackendTest extends UnitTestCase
         $tag1 = uniqid();
         $tag2 = uniqid();
         $varnishServiceMock = $this->getVarnishServiceMock();
-        $varnishServiceMock->expects($this->exactly(2))->method('banTag')
-            ->with(...$this->consecutiveParams(
-                [';' . $tag1 . ';'],
-                [';' . $tag2 . ';']
-            ));
+        $varnishServiceMock
+            ->expects($this->exactly(2))
+            ->method('banTag')
+            ->with(...$this->consecutiveParams([';' . $tag1 . ';'], [';' . $tag2 . ';']));
         $this->subject->flushByTags([$tag1, $tag2]);
     }
-
 
     #[Test]
     public function tagsIncludingTableNamesAreCompressed(): void
@@ -101,9 +101,10 @@ class VarnishBackendTest extends UnitTestCase
         $id = random_int(1, 9999);
 
         $varnishServiceMock = $this->getVarnishServiceMock();
-        $varnishServiceMock->expects($this->once())->method('banTag')->with(
-            sprintf(';%s{[0-9,]*,%d,[0-9,]*};', $table, $id)
-        );
+        $varnishServiceMock
+            ->expects($this->once())
+            ->method('banTag')
+            ->with(sprintf(';%s{[0-9,]*,%d,[0-9,]*};', $table, $id));
         $this->subject->flushByTag(sprintf('%s_%d', $table, $id));
     }
 
@@ -127,34 +128,35 @@ class VarnishBackendTest extends UnitTestCase
             $returns = [];
 
             foreach ($args as $arg) {
-                if (! array_is_list($arg)) {
+                if (!array_is_list($arg)) {
                     throw new InvalidArgumentException('Every array must be a list');
                 }
 
-                if (! isset($arg[$index])) {
+                if (!isset($arg[$index])) {
                     throw new InvalidArgumentException(sprintf('Every array must contain %d parameters', $count));
                 }
 
                 $returns[] = $arg[$index];
             }
 
-            $callbacks[] = $this->callback(new class ($returns) {
-                public function __construct(protected array $returns)
-                {
-                }
-
-                public function __invoke(mixed $actual): bool
-                {
-                    if ($this->returns === []) {
-                        return true;
+            $callbacks[] = $this->callback(
+                new class ($returns) {
+                    public function __construct(protected array $returns)
+                    {
                     }
 
-                    return $actual === array_shift($this->returns);
+                    public function __invoke(mixed $actual): bool
+                    {
+                        if ($this->returns === []) {
+                            return true;
+                        }
+
+                        return $actual === array_shift($this->returns);
+                    }
                 }
-            });
+            );
         }
 
         return $callbacks;
     }
-
 }

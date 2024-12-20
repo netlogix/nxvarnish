@@ -15,8 +15,12 @@ readonly class VarnishService implements SingletonInterface
     public function __construct(
         protected RequestFactory $requestFactory,
         protected LoggerInterface $logger,
-        #[Autowire(expression: 'service("TYPO3\\\CMS\\\Core\\\Configuration\\\ExtensionConfiguration").get("nxvarnish", "varnishHost")')]
-        protected string $varnishHost,
+        #[
+            Autowire(
+                expression: 'service("TYPO3\\\CMS\\\Core\\\Configuration\\\ExtensionConfiguration").get("nxvarnish", "varnishHost")'
+            )
+        ]
+        protected string $varnishHost
     ) {
     }
 
@@ -26,21 +30,18 @@ readonly class VarnishService implements SingletonInterface
     public function banTag(string $tag): void
     {
         try {
-            $response = $this->requestFactory->request(
-                $this->varnishHost,
-                'BAN',
-                ['headers' => ['X-Cache-Tags' => $tag]]
-            );
+            $response = $this->requestFactory->request($this->varnishHost, 'BAN', [
+                'headers' => ['X-Cache-Tags' => $tag],
+            ]);
 
             if ($response->getStatusCode() !== 200) {
-                $this->logger->error(
-                    'unexpected status after purging Varnish cache',
-                    ['tag' => $tag, 'status' => $response->getStatusCode()]
-                );
+                $this->logger->error('unexpected status after purging Varnish cache', [
+                    'tag' => $tag,
+                    'status' => $response->getStatusCode(),
+                ]);
             }
         } catch (GuzzleException $guzzleException) {
             $this->logger->error('failed purging Varnish cache', ['exception' => $guzzleException, 'tag' => $tag]);
         }
     }
-
 }
