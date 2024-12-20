@@ -1,12 +1,7 @@
 <?php
 
 use Netlogix\Nxvarnish\Cache\Backend\VarnishBackend;
-use Netlogix\Nxvarnish\Hooks\ContentPostProcHook;
-use Netlogix\Nxvarnish\Xclass\Controller\TypoScriptFrontendController;
 use TYPO3\CMS\Core\Cache\Frontend\VariableFrontend;
-use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController as T3TypoScriptFrontendController;
 
 call_user_func(function () {
     // a dummy cache that is used to promote cache clearing actions to varnish.
@@ -16,10 +11,4 @@ call_user_func(function () {
         'backend' => VarnishBackend::class,
         'groups' => ['pages', 'all']
     ];
-
-    $allowCacheLogin = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('nxvarnish', 'allowCacheLogin');
-    if ($allowCacheLogin) {
-        $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][T3TypoScriptFrontendController::class]['className'] = TypoScriptFrontendController::class;
-    }
-
 });

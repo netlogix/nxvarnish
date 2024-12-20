@@ -4,28 +4,22 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxvarnish\Tests\Functional\Service;
 
-use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\InvalidArgumentException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Netlogix\Nxvarnish\Service\VarnishService;
-use Psr\Log\LoggerInterface;
-use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
-use Psr\Http\Message\RequestInterface;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
+use Psr\Http\Message\RequestInterface;
+use Psr\Log\LoggerInterface;
+use TYPO3\CMS\Core\Http\RequestFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 class VarnishServiceTest extends FunctionalTestCase
 {
     protected array $testExtensionsToLoad = ['typo3conf/ext/nxvarnish'];
-
-    protected array $configurationToUseInTestInstance = [
-        'EXTENSIONS' => [
-            'nxvarnish' => [
-                'varnishHost' => 'http://varnish.example.com:8080',
-            ],
-        ]
-    ];
 
     #[Test]
     public function banTagCreatesRequestUsingBanMethod(): void
@@ -33,8 +27,8 @@ class VarnishServiceTest extends FunctionalTestCase
         $tag = uniqid();
 
         $mock = new MockHandler([
-            function (RequestInterface $request, array $options) use ($tag) {
-                if ($request->getMethod() != 'BAN') {
+            function (RequestInterface $request, array $options) use ($tag): Response {
+                if ($request->getMethod() !== 'BAN') {
                     self::fail('Expected Request to use method "BAN"');
                 }
 
@@ -45,11 +39,14 @@ class VarnishServiceTest extends FunctionalTestCase
 
         $GLOBALS['TYPO3_CONF_VARS']['HTTP']['handler'] = $stack;
 
-        $subject = new VarnishService();
-
+        $subject = new VarnishService(
+            $this->getRequestFactory(),
+            $this->getLogger(),
+            'http://varnish.example.com:8080'
+        );
         $subject->banTag($tag);
 
-        self::assertTrue(true);
+        $this->assertTrue(true);
     }
 
     #[Test]
@@ -58,7 +55,7 @@ class VarnishServiceTest extends FunctionalTestCase
         $tag = uniqid();
 
         $mock = new MockHandler([
-            function (RequestInterface $request, array $options) use ($tag) {
+            function (RequestInterface $request, array $options) use ($tag): Response {
                 if (!$request->hasHeader('X-Cache-Tags')) {
                     self::fail('Expected Request to use header "X-Cache-Tags"');
                 }
@@ -74,11 +71,14 @@ class VarnishServiceTest extends FunctionalTestCase
 
         $GLOBALS['TYPO3_CONF_VARS']['HTTP']['handler'] = $stack;
 
-        $subject = new VarnishService();
-
+        $subject = new VarnishService(
+            $this->getRequestFactory(),
+            $this->getLogger(),
+            'http://varnish.example.com:8080'
+        );
         $subject->banTag($tag);
 
-        self::assertTrue(true);
+        $this->assertTrue(true);
     }
 
     #[Test]
@@ -87,8 +87,8 @@ class VarnishServiceTest extends FunctionalTestCase
         $tag = uniqid();
 
         $mock = new MockHandler([
-            function (RequestInterface $request, array $options) use ($tag) {
-                if ($request->getMethod() != 'BAN') {
+            function (RequestInterface $request, array $options) use ($tag): void {
+                if ($request->getMethod() !== 'BAN') {
                     self::fail('Expected Request to use method "BAN"');
                 }
 
@@ -99,17 +99,25 @@ class VarnishServiceTest extends FunctionalTestCase
 
         $GLOBALS['TYPO3_CONF_VARS']['HTTP']['handler'] = $stack;
 
-        $subject = new VarnishService();
+        $loggerMock = $this->getLogger();
+        $loggerMock->expects($this->once())->method('error');
 
-        $loggerMock = $this->getMockBuilder(LoggerInterface::class)->getMock();
-        $loggerMock->expects(self::once())->method('error');
-
-        $subject->setLogger($loggerMock);
+        $subject = new VarnishService(
+            $this->getRequestFactory(),
+            $loggerMock,
+            'http://varnish.example.com:8080'
+        );
         $subject->banTag($tag);
     }
 
-    private function getLoggerMock()
+    private function getLogger(): MockObject
     {
+        return $this->getMockBuilder(LoggerInterface::class)->getMock();
+    }
+
+    private function getRequestFactory(): RequestFactory
+    {
+        return GeneralUtility::makeInstance(RequestFactory::class);
     }
 
 }

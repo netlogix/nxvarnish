@@ -1,0 +1,75 @@
+name: Apply Coding Standard
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  php-coding-standard:
+    name: 'Apply PHP Coding Standard'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout Code'
+        uses: actions/checkout@v4
+
+      - name: 'Setup PHP'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version-file: '.phprc'
+          tools: composer
+
+      - name: 'Get Composer Cache Directory'
+        id: composer-cache
+        shell: bash
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: 'Cache Composer Dependencies'
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer
+
+      - name: 'Install Composer Dependencies'
+        shell: bash
+        run: composer install --no-interaction
+
+      - name: 'Rector PHP Code'
+        shell: bash
+        run: composer rector:fix
+
+      - name: 'Normalize Composer files'
+        shell: bash
+        run: composer composer:normalize:fix
+
+      - name: 'PHP syntax checker'
+        shell: bash
+        run: composer php:lint
+
+      - name: 'Prettier'
+        shell: bash
+        continue-on-error: true
+        run: ./prettier.sh --write
+
+      - name: 'Run PHPUnit unit tests'
+        shell: bash
+        run: composer test:unit
+
+      - name: 'Run PHPUnit functional tests'
+        shell: bash
+        run: composer test:functional
+
+      - name: 'Create pull-request'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: 'refactor: Apply Coding Standard'
+          branch: 'automated-apply-coding-standards'
+          title: '[automated] Apply Coding Standard'
+          labels: 'automated'
+          delete-branch: true
+          token: ${{ secrets.GITHUB_TOKEN }}

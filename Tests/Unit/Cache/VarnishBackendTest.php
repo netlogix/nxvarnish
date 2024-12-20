@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxvarnish\Tests\Unit\Cache;
 
+use InvalidArgumentException;
 use Netlogix\Nxvarnish\Cache\Backend\VarnishBackend;
 use Netlogix\Nxvarnish\Service\VarnishService;
 use PHPUnit\Framework\Attributes\Test;
@@ -17,7 +18,7 @@ class VarnishBackendTest extends UnitTestCase
 
     protected bool $resetSingletonInstances = true;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->subject = new VarnishBackend('test');
@@ -28,7 +29,7 @@ class VarnishBackendTest extends UnitTestCase
     {
         $res = $this->subject->get(uniqid());
 
-        self::assertFalse($res);
+        $this->assertFalse($res);
     }
 
     #[Test]
@@ -37,7 +38,7 @@ class VarnishBackendTest extends UnitTestCase
         $this->subject->set(uniqid(), uniqid());
 
         // an error would throw an exception
-        self::assertTrue(true);
+        $this->assertTrue(true);
     }
 
     #[Test]
@@ -50,22 +51,22 @@ class VarnishBackendTest extends UnitTestCase
         $this->subject->set($id, $data, $tags);
 
         // an error would throw an exception
-        self::assertFalse($this->subject->get($id));
-        self::assertFalse($this->subject->has($id));
-        self::assertEmpty($this->subject->findIdentifiersByTag($tags[0]));
+        $this->assertFalse($this->subject->get($id));
+        $this->assertFalse($this->subject->has($id));
+        $this->assertEmpty($this->subject->findIdentifiersByTag($tags[0]));
     }
 
     #[Test]
     public function itReportsMissingEntryWhenRemoving(): void
     {
-        self::assertFalse($this->subject->remove(uniqid()));
+        $this->assertFalse($this->subject->remove(uniqid()));
     }
 
     #[Test]
     public function flushTriggersCompleteBan(): void
     {
         $varnishServiceMock = $this->getVarnishServiceMock();
-        $varnishServiceMock->expects(self::once())->method('banTag')->with('.*');
+        $varnishServiceMock->expects($this->once())->method('banTag')->with('.*');
         $this->subject->flush();
     }
 
@@ -74,7 +75,7 @@ class VarnishBackendTest extends UnitTestCase
     {
         $tag = uniqid();
         $varnishServiceMock = $this->getVarnishServiceMock();
-        $varnishServiceMock->expects(self::once())->method('banTag')->with(';' . $tag . ';');
+        $varnishServiceMock->expects($this->once())->method('banTag')->with(';' . $tag . ';');
         $this->subject->flushByTag($tag);
     }
 
@@ -97,10 +98,10 @@ class VarnishBackendTest extends UnitTestCase
     public function tagsIncludingTableNamesAreCompressed(): void
     {
         $table = uniqid();
-        $id = rand(1, 9999);
+        $id = random_int(1, 9999);
 
         $varnishServiceMock = $this->getVarnishServiceMock();
-        $varnishServiceMock->expects(self::once())->method('banTag')->with(
+        $varnishServiceMock->expects($this->once())->method('banTag')->with(
             sprintf(';%s{[0-9,]*,%d,[0-9,]*};', $table, $id)
         );
         $this->subject->flushByTag(sprintf('%s_%d', $table, $id));
@@ -127,11 +128,11 @@ class VarnishBackendTest extends UnitTestCase
 
             foreach ($args as $arg) {
                 if (! array_is_list($arg)) {
-                    throw new \InvalidArgumentException('Every array must be a list');
+                    throw new InvalidArgumentException('Every array must be a list');
                 }
 
                 if (! isset($arg[$index])) {
-                    throw new \InvalidArgumentException(sprintf('Every array must contain %d parameters', $count));
+                    throw new InvalidArgumentException(sprintf('Every array must contain %d parameters', $count));
                 }
 
                 $returns[] = $arg[$index];
@@ -144,7 +145,7 @@ class VarnishBackendTest extends UnitTestCase
 
                 public function __invoke(mixed $actual): bool
                 {
-                    if (count($this->returns) === 0) {
+                    if ($this->returns === []) {
                         return true;
                     }
 

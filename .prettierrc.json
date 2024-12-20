@@ -1,0 +1,15 @@
+{
+    "arrowParens": "avoid",
+    "quoteProps": "consistent",
+    "printWidth": 180,
+    "singleQuote": true,
+    "overrides": [
+        {
+            "files": ["*.php"],
+            "options": {
+                "printWidth": 115,
+                "plugins": ["@prettier/plugin-php"]
+            }
+        }
+    ]
+}
