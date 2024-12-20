@@ -1,20 +1,33 @@
 <?php
 
-namespace Netlogix\Nxvarnish\Service;
+declare(strict_types=1);
 
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+namespace Netlogix\Nxvarnish\Middleware;
 
-final class ExposeService
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use TYPO3\CMS\Core\Cache\CacheTag;
+
+final readonly class ExposeCacheTags implements MiddlewareInterface
 {
-
-    public function getPageCacheTags(TypoScriptFrontendController $typoScriptFrontendController): array
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $pageCacheTags = $typoScriptFrontendController->getPageCacheTags();
-        // TODO: Check if we need really need this cache tag
-        $pageCacheTags[] = 'pageId_' . $typoScriptFrontendController->id;
-        $pageCacheTags = array_unique($pageCacheTags);
-        $pageCacheTags = $this->simplifyCacheTags($pageCacheTags);
-        return $this->compressCacheTags($pageCacheTags);
+        $response = $handler->handle($request);
+
+        if (
+            $request->getAttribute('normalizedParams')->isBehindReverseProxy() === false
+            && !$request->hasHeader('x-varnish')
+        ) {
+            return $response;
+        }
+
+        $cacheDataCollector = $request->getAttribute('frontend.cache.collector');
+        $cacheTags = array_map(fn(CacheTag $cacheTag): string => $cacheTag->name, $cacheDataCollector->getCacheTags());
+        $cacheTags = $this->simplifyCacheTags($cacheTags);
+        $cacheTags = $this->compressCacheTags($cacheTags);
+        return $response->withHeader('X-Cache-Tags', implode(';', $cacheTags) . ';');
     }
 
     /**
@@ -23,15 +36,16 @@ final class ExposeService
     protected function simplifyCacheTags(array $cacheTags): array
     {
         $tableCacheTags = [];
-
         foreach ($cacheTags as $cacheTag) {
-            if (isset($GLOBALS['TCA'][$cacheTag])) {
+            if (array_key_exists($cacheTag, ($GLOBALS['TCA'] ?? []))) {
                 $tableCacheTags[] = $cacheTag;
             }
         }
-        if (empty($tableCacheTags)) {
+
+        if ($tableCacheTags === []) {
             return $cacheTags;
         }
+
         $recordCacheTagPattern = '/^(?:' . implode('|', array_map('preg_quote', $tableCacheTags, ['/'])) . ')_\d+$/';
 
         foreach ($cacheTags as $key => $cacheTag) {
@@ -52,7 +66,6 @@ final class ExposeService
     protected function compressCacheTags(array $cacheTags): array
     {
         $tagsToCompress = [];
-
         foreach ($cacheTags as $key => $cacheTag) {
             if (preg_match('/^([a-z0-9_]+)_(\d+)$/i', $cacheTag, $matches) === 1) {
                 unset($cacheTags[$key]);
@@ -61,6 +74,7 @@ final class ExposeService
                 if (!isset($tagsToCompress[$table])) {
                     $tagsToCompress[$table] = [];
                 }
+
                 $tagsToCompress[$table][] = $uid;
             }
         }
@@ -72,5 +86,4 @@ final class ExposeService
         sort($cacheTags);
         return $cacheTags;
     }
-
 }

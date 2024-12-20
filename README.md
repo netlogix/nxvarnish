@@ -1,8 +1,8 @@
 # TYPO3 extension nxvarnish
 
 [![stability-stable](https://img.shields.io/badge/stability-stable-33bbff.svg)](https://github.com/netlogix/nxvarnish)
-[![TYPO3 V12](https://img.shields.io/badge/TYPO3-12-orange.svg)](https://get.typo3.org/version/12)
-[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%208.1-8892BF.svg)](https://php.net/)
+[![TYPO3 V13](https://img.shields.io/badge/TYPO3-13-orange.svg)](https://get.typo3.org/version/13)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%208.3-8892BF.svg)](https://php.net/)
 [![GitHub CI status](https://github.com/netlogix/nxvarnish/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/netlogix/nxvarnish/actions)
 
 Adds varnish integration to TYPO3. Ensures varnish caches are flushed when TYPO3
@@ -10,11 +10,11 @@ caches are flushed. Uses cache tags to flush all necessary content.
 
 ## Compatibility
 
-The current version (5.x) of this extension has been tested using these
+The current version (6.x) of this extension has been tested using these
 versions:
 
-* TYPO3 12.4 on PHP 8.1
-* TYPO3 12.4 on PHP 8.2
+* TYPO3 13.4 on PHP 8.3
+* TYPO3 13.4 on PHP 8.4
 
 ## Installation
 

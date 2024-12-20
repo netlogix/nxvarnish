@@ -20,19 +20,20 @@
 
     <source>
         <include>
-            <directory suffix=".php">Classes</directory>
+            <directory>Classes</directory>
         </include>
     </source>
 
     <coverage>
         <report>
-            <php outputFile=".Build/logs/coverage/unit.cov"/>
-            <html outputDirectory=".Build/logs/coverage/unit"/>
+            <clover outputFile=".Build/artifacts/reports/unit/clover.xml"/>
+            <php outputFile=".Build/artifacts/coverage/unit.cov"/>
+            <html outputDirectory=".Build/artifacts/coverage/unit"/>
         </report>
     </coverage>
 
     <logging>
-        <junit outputFile=".Build/logs/junit/unit.xml"/>
+        <junit outputFile=".Build/artifacts/reports/unit/phpunit.xml"/>
     </logging>
 
     <php>

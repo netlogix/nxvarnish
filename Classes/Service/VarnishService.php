@@ -5,25 +5,19 @@ declare(strict_types=1);
 namespace Netlogix\Nxvarnish\Service;
 
 use GuzzleHttp\Exception\GuzzleException;
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
-use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\SingletonInterface;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class VarnishService implements LoggerAwareInterface, SingletonInterface
+readonly class VarnishService implements SingletonInterface
 {
-    use LoggerAwareTrait;
-
-    protected $varnishHost = '';
-
-    public function __construct()
-    {
-        $this->varnishHost = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get(
-            'nxvarnish',
-            'varnishHost'
-        );
+    public function __construct(
+        protected RequestFactory $requestFactory,
+        protected LoggerInterface $logger,
+        #[Autowire(expression: 'service("TYPO3\\\CMS\\\Core\\\Configuration\\\ExtensionConfiguration").get("nxvarnish", "varnishHost")')]
+        protected string $varnishHost,
+    ) {
     }
 
     /**
@@ -32,8 +26,11 @@ class VarnishService implements LoggerAwareInterface, SingletonInterface
     public function banTag(string $tag): void
     {
         try {
-            $response = GeneralUtility::makeInstance(RequestFactory::class)
-                ->request($this->varnishHost, 'BAN', ['headers' => ['X-Cache-Tags' => $tag]]);
+            $response = $this->requestFactory->request(
+                $this->varnishHost,
+                'BAN',
+                ['headers' => ['X-Cache-Tags' => $tag]]
+            );
 
             if ($response->getStatusCode() !== 200) {
                 $this->logger->error(
@@ -41,8 +38,8 @@ class VarnishService implements LoggerAwareInterface, SingletonInterface
                     ['tag' => $tag, 'status' => $response->getStatusCode()]
                 );
             }
-        } catch (GuzzleException $e) {
-            $this->logger->error('failed purging Varnish cache', ['exception' => $e, 'tag' => $tag]);
+        } catch (GuzzleException $guzzleException) {
+            $this->logger->error('failed purging Varnish cache', ['exception' => $guzzleException, 'tag' => $tag]);
         }
     }
 

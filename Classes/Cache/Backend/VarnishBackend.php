@@ -56,6 +56,7 @@ class VarnishBackend extends NullBackend
         if ($tag === '.*') {
             return $tag;
         }
+
         if (preg_match('/^([a-z0-9_]+)_(\d+)$/i', $tag, $matches) === 1) {
             $table = $matches[1];
             $uid = $matches[2];

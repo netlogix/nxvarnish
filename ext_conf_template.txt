@@ -1,5 +1,2 @@
-# cat=basic/enable; type=boolean; label=Send normal cache headers even when someone is logged in. YOU HAVE TO HANDLE CACHE CONTROL IN YOUR CACHE THEN!
-allowCacheLogin = 0
-
 # cat=curl/; type=string; label=Varnish host: Example: "http://varnish-proxy.hostname:8080"
 varnishHost =
