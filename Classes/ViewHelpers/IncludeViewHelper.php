@@ -56,7 +56,13 @@ class IncludeViewHelper extends AbstractTagBasedViewHelper
             false,
             false
         );
-        $this->registerArgument('absolute', 'bool', 'If set, the URI of the rendered link is absolute', false, false);
+        $this->registerArgument(
+            'absolute',
+            'bool',
+            'If set, the URI of the rendered link is absolute',
+            false,
+            false
+        );
         $this->registerArgument(
             'addQueryString',
             'string',
@@ -121,11 +127,14 @@ class IncludeViewHelper extends AbstractTagBasedViewHelper
         $noCache = isset($arguments['noCache']) && (bool) $arguments['noCache'];
         $section = isset($arguments['section']) ? (string) $arguments['section'] : '';
         $language = isset($arguments['language']) ? (string) $arguments['language'] : null;
-        $linkAccessRestrictedPages = isset($arguments['linkAccessRestrictedPages']) && (bool) $arguments['linkAccessRestrictedPages'];
+        $linkAccessRestrictedPages =
+            isset($arguments['linkAccessRestrictedPages']) && (bool) $arguments['linkAccessRestrictedPages'];
         $additionalParams = isset($arguments['additionalParams']) ? (array) $arguments['additionalParams'] : [];
         $absolute = isset($arguments['absolute']) && (bool) $arguments['absolute'];
         $addQueryString = $arguments['addQueryString'] ?? false;
-        $argumentsToBeExcludedFromQueryString = isset($arguments['argumentsToBeExcludedFromQueryString']) ? (array) $arguments['argumentsToBeExcludedFromQueryString'] : [];
+        $argumentsToBeExcludedFromQueryString = isset($arguments['argumentsToBeExcludedFromQueryString'])
+            ? (array) $arguments['argumentsToBeExcludedFromQueryString']
+            : [];
 
         $typolinkConfiguration = [
             'parameter' => $pageUid,
@@ -212,5 +221,4 @@ class IncludeViewHelper extends AbstractTagBasedViewHelper
 
         return $uri->build();
     }
-
 }

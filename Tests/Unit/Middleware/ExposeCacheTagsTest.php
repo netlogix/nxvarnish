@@ -93,7 +93,7 @@ class ExposeCacheTagsTest extends UnitTestCase
             new CacheTag('tx_nxvarnish_testtest_2'),
             new CacheTag('tx_nxvarnish_testtest'),
             new CacheTag('tx_nxvarnish_testtesttest'),
-            new CacheTag('tx_nxvarnish_testtesttest_2'),
+            new CacheTag('tx_nxvarnish_testtesttest_2')
         );
 
         $GLOBALS['TCA'] = [

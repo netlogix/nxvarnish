@@ -17,14 +17,17 @@ final readonly class ExposeCacheTags implements MiddlewareInterface
         $response = $handler->handle($request);
 
         if (
-            $request->getAttribute('normalizedParams')->isBehindReverseProxy() === false
-            && !$request->hasHeader('x-varnish')
+            $request->getAttribute('normalizedParams')->isBehindReverseProxy() === false &&
+            !$request->hasHeader('x-varnish')
         ) {
             return $response;
         }
 
         $cacheDataCollector = $request->getAttribute('frontend.cache.collector');
-        $cacheTags = array_map(fn(CacheTag $cacheTag): string => $cacheTag->name, $cacheDataCollector->getCacheTags());
+        $cacheTags = array_map(
+            fn(CacheTag $cacheTag): string => $cacheTag->name,
+            $cacheDataCollector->getCacheTags()
+        );
         $cacheTags = $this->simplifyCacheTags($cacheTags);
         $cacheTags = $this->compressCacheTags($cacheTags);
         return $response->withHeader('X-Cache-Tags', implode(';', $cacheTags) . ';');
@@ -37,7 +40,7 @@ final readonly class ExposeCacheTags implements MiddlewareInterface
     {
         $tableCacheTags = [];
         foreach ($cacheTags as $cacheTag) {
-            if (array_key_exists($cacheTag, ($GLOBALS['TCA'] ?? []))) {
+            if (array_key_exists($cacheTag, $GLOBALS['TCA'] ?? [])) {
                 $tableCacheTags[] = $cacheTag;
             }
         }
@@ -46,7 +49,8 @@ final readonly class ExposeCacheTags implements MiddlewareInterface
             return $cacheTags;
         }
 
-        $recordCacheTagPattern = '/^(?:' . implode('|', array_map('preg_quote', $tableCacheTags, ['/'])) . ')_\d+$/';
+        $recordCacheTagPattern =
+            '/^(?:' . implode('|', array_map('preg_quote', $tableCacheTags, ['/'])) . ')_\d+$/';
 
         foreach ($cacheTags as $key => $cacheTag) {
             if (preg_match($recordCacheTagPattern, $cacheTag) === 1) {

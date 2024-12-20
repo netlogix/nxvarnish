@@ -9,6 +9,6 @@ call_user_func(function () {
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['tx_nxvarnish_dummy'] = [
         'frontend' => VariableFrontend::class,
         'backend' => VarnishBackend::class,
-        'groups' => ['pages', 'all']
+        'groups' => ['pages', 'all'],
     ];
 });
