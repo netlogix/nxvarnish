@@ -26,7 +26,7 @@ final readonly class ExposeCacheTags implements MiddlewareInterface
         $cacheDataCollector = $request->getAttribute('frontend.cache.collector');
         $cacheTags = array_map(
             fn(CacheTag $cacheTag): string => $cacheTag->name,
-            $cacheDataCollector->getCacheTags()
+            $cacheDataCollector->getCacheTags(),
         );
         $cacheTags = $this->simplifyCacheTags($cacheTags);
         $cacheTags = $this->compressCacheTags($cacheTags);

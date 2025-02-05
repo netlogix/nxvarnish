@@ -141,9 +141,7 @@ class VarnishBackendTest extends UnitTestCase
 
             $callbacks[] = $this->callback(
                 new class ($returns) {
-                    public function __construct(protected array $returns)
-                    {
-                    }
+                    public function __construct(protected array $returns) {}
 
                     public function __invoke(mixed $actual): bool
                     {
@@ -153,7 +151,7 @@ class VarnishBackendTest extends UnitTestCase
 
                         return $actual === array_shift($this->returns);
                     }
-                }
+                },
             );
         }
 
