@@ -50,7 +50,7 @@ class ExposeCacheTagsTest extends UnitTestCase
         $response = $this->subject->process($request, $requestHandler);
         $this->assertSame(
             'tx_nxvarnish_testtest;tx_nxvarnish_testtesttest;tx_nxvarnish_testtesttest{,2,};tx_nxvarnish_test{,1,3,2,};',
-            $response->getHeaderLine('X-Cache-Tags')
+            $response->getHeaderLine('X-Cache-Tags'),
         );
     }
 
@@ -93,7 +93,7 @@ class ExposeCacheTagsTest extends UnitTestCase
             new CacheTag('tx_nxvarnish_testtest_2'),
             new CacheTag('tx_nxvarnish_testtest'),
             new CacheTag('tx_nxvarnish_testtesttest'),
-            new CacheTag('tx_nxvarnish_testtesttest_2')
+            new CacheTag('tx_nxvarnish_testtesttest_2'),
         );
 
         $GLOBALS['TCA'] = [

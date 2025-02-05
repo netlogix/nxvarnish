@@ -16,13 +16,10 @@ readonly class VarnishService implements SingletonInterface
         protected RequestFactory $requestFactory,
         protected LoggerInterface $logger,
         #[
-            Autowire(
-                expression: 'service("extension-configuration").get("nxvarnish", "varnishHost")'
-            )
+            Autowire(expression: 'service("extension-configuration").get("nxvarnish", "varnishHost")'),
         ]
-        protected string $varnishHost
-    ) {
-    }
+        protected string $varnishHost,
+    ) {}
 
     /**
      * Ban all documents with the given tag from varnish
