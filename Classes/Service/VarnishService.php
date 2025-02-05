@@ -17,7 +17,7 @@ readonly class VarnishService implements SingletonInterface
         protected LoggerInterface $logger,
         #[
             Autowire(
-                expression: 'service("TYPO3\\\CMS\\\Core\\\Configuration\\\ExtensionConfiguration").get("nxvarnish", "varnishHost")'
+                expression: 'service("extension-configuration").get("nxvarnish", "varnishHost")'
             )
         ]
         protected string $varnishHost
