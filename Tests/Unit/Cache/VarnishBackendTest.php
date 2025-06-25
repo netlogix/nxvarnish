@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxvarnish\Tests\Unit\Cache;
 
+use Override;
 use InvalidArgumentException;
 use Netlogix\Nxvarnish\Cache\Backend\VarnishBackend;
 use Netlogix\Nxvarnish\Service\VarnishService;
@@ -17,6 +18,7 @@ class VarnishBackendTest extends UnitTestCase
 
     protected bool $resetSingletonInstances = true;
 
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
