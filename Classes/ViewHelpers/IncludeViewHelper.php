@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxvarnish\ViewHelpers;
 
+use Override;
 use Closure;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
@@ -25,6 +26,7 @@ class IncludeViewHelper extends AbstractTagBasedViewHelper
 {
     protected $tagName = 'esi:include';
 
+    #[Override]
     public function initializeArguments(): void
     {
         $this->registerArgument('pageUid', 'int', 'target PID');
@@ -81,6 +83,7 @@ class IncludeViewHelper extends AbstractTagBasedViewHelper
         $this->registerArgument('src', 'string', '', false, null);
     }
 
+    #[Override]
     public function render(): string
     {
         $request = null;

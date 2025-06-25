@@ -53,7 +53,7 @@ final readonly class ExposeCacheTags implements MiddlewareInterface
             '/^(?:' . implode('|', array_map('preg_quote', $tableCacheTags, ['/'])) . ')_\d+$/';
 
         foreach ($cacheTags as $key => $cacheTag) {
-            if (preg_match($recordCacheTagPattern, $cacheTag) === 1) {
+            if (preg_match($recordCacheTagPattern, (string) $cacheTag) === 1) {
                 unset($cacheTags[$key]);
             }
         }
@@ -71,7 +71,7 @@ final readonly class ExposeCacheTags implements MiddlewareInterface
     {
         $tagsToCompress = [];
         foreach ($cacheTags as $key => $cacheTag) {
-            if (preg_match('/^([a-z0-9_]+)_(\d+)$/i', $cacheTag, $matches) === 1) {
+            if (preg_match('/^([a-z0-9_]+)_(\d+)$/i', (string) $cacheTag, $matches) === 1) {
                 unset($cacheTags[$key]);
                 $table = $matches[1];
                 $uid = $matches[2];

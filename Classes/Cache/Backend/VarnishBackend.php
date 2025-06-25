@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxvarnish\Cache\Backend;
 
+use Override;
 use Netlogix\Nxvarnish\Service\VarnishService;
 use TYPO3\CMS\Core\Cache\Backend\NullBackend;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -33,6 +34,7 @@ class VarnishBackend extends NullBackend
      *
      * @param string[] $tags List of tags
      */
+    #[Override]
     public function flushByTags(array $tags): void
     {
         foreach ($tags as $tag) {

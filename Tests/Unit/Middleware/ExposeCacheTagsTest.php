@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxvarnish\Tests\Unit\Middleware;
 
+use Override;
 use Netlogix\Nxvarnish\Middleware\ExposeCacheTags;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
@@ -19,6 +20,7 @@ class ExposeCacheTagsTest extends UnitTestCase
 {
     protected ExposeCacheTags $subject;
 
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
