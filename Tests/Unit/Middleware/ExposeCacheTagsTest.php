@@ -49,7 +49,7 @@ class ExposeCacheTagsTest extends UnitTestCase
 
         $response = $this->subject->process($request, $requestHandler);
         $this->assertSame(
-            'tx_nxvarnish_testtest;tx_nxvarnish_testtesttest;tx_nxvarnish_testtesttest{,2,};tx_nxvarnish_test{,1,3,2,};',
+            ';tx_nxvarnish_testtest;tx_nxvarnish_testtesttest;tx_nxvarnish_testtesttest{,2,};tx_nxvarnish_test{,1,3,2,};',
             $response->getHeaderLine('X-Cache-Tags'),
         );
     }
@@ -69,7 +69,7 @@ class ExposeCacheTagsTest extends UnitTestCase
         $request = $request->withAttribute('frontend.cache.collector', $cacheDataCollector);
 
         $response = $this->subject->process($request, $requestHandler);
-        $this->assertSame('pageId{,1,};', $response->getHeaderLine('X-Cache-Tags'));
+        $this->assertSame(';pageId{,1,};', $response->getHeaderLine('X-Cache-Tags'));
     }
 
     private function getRequest($isBehindReverseProxy = true): ServerRequestInterface
