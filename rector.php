@@ -23,7 +23,7 @@ return RectorConfig::configure()
         typeDeclarations: true,
         instanceOf: true,
         earlyReturn: true,
-        strictBooleans: true
+        strictBooleans: true,
     )
     ->withImportNames(removeUnusedImports: true)
     ->withSets([

@@ -42,7 +42,7 @@ class VarnishServiceTest extends FunctionalTestCase
         $subject = new VarnishService(
             $this->getRequestFactory(),
             $this->getLogger(),
-            'http://varnish.example.com:8080'
+            'http://varnish.example.com:8080',
         );
         $subject->banTag($tag);
 
@@ -74,7 +74,7 @@ class VarnishServiceTest extends FunctionalTestCase
         $subject = new VarnishService(
             $this->getRequestFactory(),
             $this->getLogger(),
-            'http://varnish.example.com:8080'
+            'http://varnish.example.com:8080',
         );
         $subject->banTag($tag);
 
