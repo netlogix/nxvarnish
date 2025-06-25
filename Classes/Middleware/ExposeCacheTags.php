@@ -30,7 +30,7 @@ final readonly class ExposeCacheTags implements MiddlewareInterface
         );
         $cacheTags = $this->simplifyCacheTags($cacheTags);
         $cacheTags = $this->compressCacheTags($cacheTags);
-        return $response->withHeader('X-Cache-Tags', implode(';', $cacheTags) . ';');
+        return $response->withHeader('X-Cache-Tags', ';' . implode(';', $cacheTags) . ';');
     }
 
     /**
