@@ -72,7 +72,7 @@ jobs:
         run: .Build/bin/phpcov merge --html .Build/artifacts/coverage/merged --clover .Build/artifacts/coverage/clover.xml .Build/artifacts/coverage/
 
       - name: 'Generate code coverage summary report'
-        uses: saschanowak/CloverCodeCoverageSummary@1.1.0
+        uses: saschanowak/CloverCodeCoverageSummary@1.1.1
         with:
           filename: .Build/artifacts/coverage/clover.xml
 
