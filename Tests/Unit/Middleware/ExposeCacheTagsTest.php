@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxvarnish\Tests\Unit\Middleware;
 
-use Override;
 use Netlogix\Nxvarnish\Middleware\ExposeCacheTags;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
@@ -16,11 +15,10 @@ use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-class ExposeCacheTagsTest extends UnitTestCase
+final class ExposeCacheTagsTest extends UnitTestCase
 {
     protected ExposeCacheTags $subject;
 
-    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -33,7 +31,7 @@ class ExposeCacheTagsTest extends UnitTestCase
         $request = $this->getRequest(isBehindReverseProxy: false);
 
         $response = new Response();
-        $requestHandler = $this->getMockBuilder(RequestHandlerInterface::class)->getMock();
+        $requestHandler = $this->createMock(RequestHandlerInterface::class);
         $requestHandler->method('handle')->willReturn($response);
 
         $response = $this->subject->process($request, $requestHandler);
@@ -45,7 +43,7 @@ class ExposeCacheTagsTest extends UnitTestCase
     {
         $request = $this->getRequest();
         $response = new Response();
-        $requestHandler = $this->getMockBuilder(RequestHandlerInterface::class)->getMock();
+        $requestHandler = $this->createMock(RequestHandlerInterface::class);
         $requestHandler->method('handle')->willReturn($response);
         $request = $request->withAttribute('frontend.cache.collector', $this->getCacheDataCollector());
 
@@ -63,7 +61,7 @@ class ExposeCacheTagsTest extends UnitTestCase
         $request = $request->withHeader('x-varnish', '1');
 
         $response = new Response();
-        $requestHandler = $this->getMockBuilder(RequestHandlerInterface::class)->getMock();
+        $requestHandler = $this->createMock(RequestHandlerInterface::class);
         $requestHandler->method('handle')->willReturn($response);
         $cacheDataCollector = new CacheDataCollector();
         $cacheDataCollector->addCacheTags(new CacheTag('pageId_1'));
@@ -74,11 +72,9 @@ class ExposeCacheTagsTest extends UnitTestCase
         $this->assertSame(';pageId{,1,};', $response->getHeaderLine('X-Cache-Tags'));
     }
 
-    private function getRequest($isBehindReverseProxy = true): ServerRequestInterface
+    private function getRequest(bool $isBehindReverseProxy = true): ServerRequestInterface
     {
-        $normalizedParams = $this->getMockBuilder(NormalizedParams::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $normalizedParams = $this->createMock(NormalizedParams::class);
         $normalizedParams->method('isBehindReverseProxy')->willReturn($isBehindReverseProxy);
         return (new ServerRequest())->withAttribute('normalizedParams', $normalizedParams);
     }
