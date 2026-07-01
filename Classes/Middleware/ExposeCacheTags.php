@@ -50,7 +50,7 @@ final readonly class ExposeCacheTags implements MiddlewareInterface
         }
 
         $recordCacheTagPattern =
-            '/^(?:' . implode('|', array_map('preg_quote', $tableCacheTags, ['/'])) . ')_\d+$/';
+            '/^(?:' . implode('|', array_map(preg_quote(...), $tableCacheTags, ['/'])) . ')_\d+$/';
 
         foreach ($cacheTags as $key => $cacheTag) {
             if (preg_match($recordCacheTagPattern, (string) $cacheTag) === 1) {

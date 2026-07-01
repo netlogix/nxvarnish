@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxvarnish\Tests\Unit\Cache;
 
-use Override;
 use InvalidArgumentException;
 use Netlogix\Nxvarnish\Cache\Backend\VarnishBackend;
 use Netlogix\Nxvarnish\Service\VarnishService;
@@ -12,13 +11,12 @@ use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-class VarnishBackendTest extends UnitTestCase
+final class VarnishBackendTest extends UnitTestCase
 {
     protected VarnishBackend $subject;
 
     protected bool $resetSingletonInstances = true;
 
-    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -113,9 +111,7 @@ class VarnishBackendTest extends UnitTestCase
     private function getVarnishServiceMock(): VarnishService
     {
         // mock this the hard way until dependency injection can be used
-        $varnishServiceMock = $this->getMockBuilder(VarnishService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $varnishServiceMock = $this->createMock(VarnishService::class);
         GeneralUtility::setSingletonInstance(VarnishService::class, $varnishServiceMock);
         return $varnishServiceMock;
     }

@@ -17,7 +17,7 @@ use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
-class VarnishServiceTest extends FunctionalTestCase
+final class VarnishServiceTest extends FunctionalTestCase
 {
     protected array $testExtensionsToLoad = ['typo3conf/ext/nxvarnish'];
 
@@ -27,11 +27,10 @@ class VarnishServiceTest extends FunctionalTestCase
         $tag = uniqid();
 
         $mock = new MockHandler([
-            function (RequestInterface $request, array $options) use ($tag): Response {
+            function (RequestInterface $request, array $options): Response {
                 if ($request->getMethod() !== 'BAN') {
                     self::fail('Expected Request to use method "BAN"');
                 }
-
                 return new Response();
             },
         ]);
@@ -87,11 +86,10 @@ class VarnishServiceTest extends FunctionalTestCase
         $tag = uniqid();
 
         $mock = new MockHandler([
-            function (RequestInterface $request, array $options) use ($tag): void {
+            function (RequestInterface $request, array $options): void {
                 if ($request->getMethod() !== 'BAN') {
                     self::fail('Expected Request to use method "BAN"');
                 }
-
                 throw new InvalidArgumentException('Test');
             },
         ]);
@@ -108,7 +106,7 @@ class VarnishServiceTest extends FunctionalTestCase
 
     private function getLogger(): MockObject
     {
-        return $this->getMockBuilder(LoggerInterface::class)->getMock();
+        return $this->createMock(LoggerInterface::class);
     }
 
     private function getRequestFactory(): RequestFactory
