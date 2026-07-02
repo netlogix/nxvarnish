@@ -31,6 +31,7 @@ final class VarnishServiceTest extends FunctionalTestCase
                 if ($request->getMethod() !== 'BAN') {
                     self::fail('Expected Request to use method "BAN"');
                 }
+
                 return new Response();
             },
         ]);
@@ -90,6 +91,7 @@ final class VarnishServiceTest extends FunctionalTestCase
                 if ($request->getMethod() !== 'BAN') {
                     self::fail('Expected Request to use method "BAN"');
                 }
+
                 throw new InvalidArgumentException('Test');
             },
         ]);
