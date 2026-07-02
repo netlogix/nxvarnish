@@ -76,7 +76,7 @@ final class ExposeCacheTagsTest extends UnitTestCase
     {
         $normalizedParams = $this->createMock(NormalizedParams::class);
         $normalizedParams->method('isBehindReverseProxy')->willReturn($isBehindReverseProxy);
-        return (new ServerRequest())->withAttribute('normalizedParams', $normalizedParams);
+        return new ServerRequest()->withAttribute('normalizedParams', $normalizedParams);
     }
 
     private function getCacheDataCollector(): CacheDataCollector

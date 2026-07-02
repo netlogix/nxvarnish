@@ -20,12 +20,12 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: TYPO3 v13.4 tests on PHP ${{ matrix.php }}
+    name: TYPO3 v14 tests on PHP ${{ matrix.php }}
 
     strategy:
       fail-fast: false
       matrix:
-        php: [8.3, 8.4]
+        php: [8.4, 8.5]
 
     steps:
       - name: 'Checkout code'
@@ -83,7 +83,7 @@ jobs:
 
       - name: 'Add title to code coverage summary'
         shell: bash
-        run: sed -i '1 i\## TYPO3 v13.4 tests on PHP ${{ matrix.php }}' code-coverage-summary.md
+        run: sed -i '1 i\## TYPO3 v14 tests on PHP ${{ matrix.php }}' code-coverage-summary.md
 
       - name: 'Add code coverage summary as pr comment'
         uses: marocchino/sticky-pull-request-comment@v3
