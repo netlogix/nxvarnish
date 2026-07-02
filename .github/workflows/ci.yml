@@ -86,7 +86,7 @@ jobs:
         run: sed -i '1 i\## TYPO3 v13.4 tests on PHP ${{ matrix.php }}' code-coverage-summary.md
 
       - name: 'Add code coverage summary as pr comment'
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           header: coverage-${{ matrix.php }}
           recreate: true
