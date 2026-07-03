@@ -40,7 +40,7 @@ final readonly class ExposeCacheTags implements MiddlewareInterface
     {
         $tableCacheTags = [];
         foreach ($cacheTags as $cacheTag) {
-            if (array_key_exists($cacheTag, $GLOBALS['TCA'] ?? [])) {
+            if (array_key_exists((string) $cacheTag, $GLOBALS['TCA'] ?? [])) {
                 $tableCacheTags[] = $cacheTag;
             }
         }
